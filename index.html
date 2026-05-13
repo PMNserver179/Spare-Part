@@ -1335,6 +1335,8 @@ function generate() {
   const start  = document.getElementById('start').value;
   const end    = document.getElementById('end').value;
   const source = document.getElementById('sourceFilter').value;
+  // DEBUG — ดูว่าส่งค่าอะไรไป
+  console.log("start:", start, "end:", end, "source:", source);
   if (!start || !end) { showModal({ title:"แจ้งเตือน", text:"กรุณาเลือกวันที่", type:"error" }); return; }
   const btn = document.getElementById('btn');
   btn.innerText = "Processing..."; btn.disabled = true;
