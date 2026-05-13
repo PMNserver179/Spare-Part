@@ -1797,6 +1797,75 @@ async function retryCamera() {
   camChainIdx = 0;
   await tryNextCamera();
 }
+
+// ===== CONFIG =====
+var GAS_URL = "https://script.google.com/macros/s/AKfycbyQ85JQ-OqSJx0hJSDG_wlUBg9XH2snzKfGECk9rNvzX4bbXVtRQ-sZmjkClzN6hVpc/exec";
+
+// ===== FETCH WRAPPER แทน google.script.run =====
+function gasCall(action, params, onSuccess, onFail) {
+  var url = GAS_URL + "?action=" + action;
+  Object.keys(params || {}).forEach(function(k) {
+    url += "&" + k + "=" + encodeURIComponent(
+      typeof params[k] === "object" ? JSON.stringify(params[k]) : params[k]
+    );
+  });
+
+  fetch(url)
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.error) {
+        if (onFail) onFail({ message: data.message });
+      } else {
+        if (onSuccess) onSuccess(data);
+      }
+    })
+    .catch(function(err) {
+      if (onFail) onFail({ message: err.message });
+    });
+}
+
+// ===== Override google.script.run =====
+window.google = {
+  script: {
+    run: {
+      withSuccessHandler: function(fn) { this._s = fn; return this; },
+      withFailureHandler: function(fn) { this._f = fn; return this; },
+
+      getReportData: function(start, end, source) {
+        gasCall("getReportData",
+          { startDate: start, endDate: end, sourceFilter: source },
+          this._s, this._f);
+      },
+      getEmployeeName: function(empId) {
+        var self = this;
+        gasCall("getEmployeeName", { empId: empId }, function(data) {
+          if (self._s) self._s(data.name);
+        }, this._f);
+      },
+      searchItem: function(keyword) {
+        var self = this;
+        gasCall("searchItem", { keyword: keyword }, function(data) {
+          if (self._s) self._s(data.items);
+        }, this._f);
+      },
+      saveStock: function(data) {
+        gasCall("saveStock", { data: data }, this._s, this._f);
+      },
+      saveStockIn: function(data) {
+        gasCall("saveStockIn", { data: data }, this._s, this._f);
+      },
+      getPendingList: function() {
+        gasCall("getPendingList", {}, this._s, this._f);
+      },
+      approveTransaction: function(id) {
+        gasCall("approveTransaction", { txId: id }, this._s, this._f);
+      },
+      rejectTransaction: function(id, reason) {
+        gasCall("rejectTransaction", { txId: id, reason: reason }, this._s, this._f);
+      }
+    }
+  }
+};
 </script>
 
 </body>
