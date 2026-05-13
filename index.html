@@ -975,8 +975,13 @@ h1, h2, h3, .font-semibold, .font-bold {
     <div class="qr-handle"></div>
  
     <div class="qr-hd">
-      <div class="qr-hd-title">📷 สแกน QR Code</div>
-      <button class="qr-hd-close" onclick="closeQR()">✕</button>
+      <div class="qr-hd-title" style="display:flex;align-items:center;gap:6px;">
+        <i data-lucide="scan-line" style="width:16px;height:16px;color:#f0d080;"></i>
+        สแกน QR Code
+      </div>
+      <button class="qr-hd-close" onclick="closeQR()">
+        <i data-lucide="x" style="width:14px;height:14px;"></i>
+      </button>
     </div>
  
     <!-- camera viewport -->
@@ -1000,8 +1005,12 @@ h1, h2, h3, .font-semibold, .font-bold {
     <!-- status + buttons -->
     <div class="qr-bar">
       <div class="qr-status" id="qrStatus">กำลังเปิดกล้อง...</div>
-      <button class="qr-btn qr-btn-torch" id="torchBtn" onclick="toggleTorch()">🔦</button>
-      <button class="qr-btn qr-btn-switch" onclick="switchCamera()">🔄</button>
+      <button class="qr-btn qr-btn-torch" id="torchBtn" onclick="toggleTorch()">
+        <i data-lucide="flashlight" style="width:15px;height:15px;"></i>
+      </button>
+      <button class="qr-btn qr-btn-switch" onclick="switchCamera()">
+        <i data-lucide="camera-rotate" style="width:15px;height:15px;"></i>
+      </button>
       <button class="qr-btn qr-btn-cancel" onclick="closeQR()">ปิด</button>
     </div>
  
@@ -1042,6 +1051,7 @@ let todayInputList = [];
     document.getElementById('qrModal').classList.add('active');
     document.getElementById('qrManual').classList.remove('show');
     _setStatus('กำลังเปิดกล้อง...', '');
+    lucide.createIcons(); 
  
     if ('BarcodeDetector' in window) {
       try { _detector = new BarcodeDetector({ formats: ['qr_code'] }); } catch(e){}
