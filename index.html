@@ -1519,11 +1519,16 @@ function stopAutoRefresh() { clearInterval(autoRefreshTimer); }
 function startAutoRefresh() { autoRefreshTimer = setInterval(loadPending, 5000); }
 
 function loadPending() {
-  google.script.run.withSuccessHandler(res => {
-    if (!res.success) { showModal({ title:"เกิดข้อผิดพลาด", text:res.message, type:"error" }); return; }
+  gasCall("getPendingList", {}, function(res) {
+    if (!res.success) { 
+      showModal({ title:"เกิดข้อผิดพลาด", text: res.message, type:"error" }); 
+      return; 
+    }
     pendingData = res.rows;
     renderTable();
-  }).getPendingList();
+  }, function(err) {
+    showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+  });
 }
 
 function renderTable() {
@@ -1564,10 +1569,12 @@ function approve(id) {
     onConfirm: () => {
       closeModal();
       setTimeout(() => {
-        google.script.run.withSuccessHandler(() => {
+        gasCall("approveTransaction", { txId: id }, function() {
           showModal({ title:"อนุมัติสำเร็จ", text:"รายการได้รับการอนุมัติเรียบร้อยแล้ว", type:"success", autoClose:1000 });
           loadPending();
-        }).approveTransaction(id);
+        }, function(err) {
+          showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+        });
       }, 350);
     }
   });
@@ -1579,10 +1586,12 @@ function reject(id) {
     onConfirm: (reason) => {
       closeModal();
       setTimeout(() => {
-        google.script.run.withSuccessHandler(() => {
+        gasCall("rejectTransaction", { txId: id, reason: reason }, function() {
           showModal({ title:"ไม่อนุมัติสำเร็จ", text:"รายการถูกปฏิเสธเรียบร้อยแล้ว", type:"error", autoClose:1000 });
           loadPending();
-        }).rejectTransaction(id, reason);
+        }, function(err) {
+          showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+        });
       }, 350);
     }
   });
