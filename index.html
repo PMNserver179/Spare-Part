@@ -1566,11 +1566,16 @@ document.addEventListener("input", e => { if (e.target.id === "searchBox") rende
 function approve(id) {
   showModal({
     title: "ยืนยันรายการ", text: "ต้องการอนุมัติใช่หรือไม่?", type: "confirm",
-    onConfirm: () => {
+    onConfirm: function() {
       closeModal();
-      setTimeout(() => {
-        gasCall("approveTransaction", { txId: id }, function() {
-          showModal({ title:"อนุมัติสำเร็จ", text:"รายการได้รับการอนุมัติเรียบร้อยแล้ว", type:"success", autoClose:1000 });
+      var email = localStorage.getItem("pmn_user_email") || "";
+      setTimeout(function() {
+        gasCall("approveTransaction", { txId: id, approverEmail: email }, function(res) {
+          if (res.success === false) {
+            showModal({ title:"ไม่มีสิทธิ์", text: res.message, type:"error" });
+            return;
+          }
+          showModal({ title:"อนุมัติสำเร็จ", text:"รายการได้รับการอนุมัติเรียบร้อยแล้ว", type:"success", autoClose:1500 });
           loadPending();
         }, function(err) {
           showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
@@ -1583,11 +1588,16 @@ function approve(id) {
 function reject(id) {
   showModal({
     title: "ไม่อนุมัติ", text: "กรุณาระบุเหตุผล", type: "confirm", showInput: true,
-    onConfirm: (reason) => {
+    onConfirm: function(reason) {
       closeModal();
-      setTimeout(() => {
-        gasCall("rejectTransaction", { txId: id, reason: reason }, function() {
-          showModal({ title:"ไม่อนุมัติสำเร็จ", text:"รายการถูกปฏิเสธเรียบร้อยแล้ว", type:"error", autoClose:1000 });
+      var email = localStorage.getItem("pmn_user_email") || "";
+      setTimeout(function() {
+        gasCall("rejectTransaction", { txId: id, reason: reason, approverEmail: email }, function(res) {
+          if (res.success === false) {
+            showModal({ title:"ไม่มีสิทธิ์", text: res.message, type:"error" });
+            return;
+          }
+          showModal({ title:"ไม่อนุมัติสำเร็จ", text:"รายการถูกปฏิเสธเรียบร้อยแล้ว", type:"error", autoClose:1500 });
           loadPending();
         }, function(err) {
           showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
