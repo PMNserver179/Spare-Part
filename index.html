@@ -1803,80 +1803,197 @@ function switchPermTab(os) {
 }
 async function retryCamera() {
   closePermGuide();
-  setQrStatus("กำลังลองเปิดกล้องอีกครั้ง...", "");
-  hideQrManualInput();
-  camChainIdx = 0;
-  await tryNextCamera();
 }
 
 // ===== CONFIG =====
 var GAS_URL = "https://script.google.com/macros/s/AKfycby_Oqobv961sBxbBIPQce4UYqyog2nkPe3gGpa_FpqUvNWkiXwgFtBa9oxr7LHbz03c/exec";
 
-// ===== FETCH WRAPPER แทน google.script.run =====
+// ===== FETCH WRAPPER =====
 function gasCall(action, params, onSuccess, onFail) {
   var url = GAS_URL + "?action=" + action;
   Object.keys(params || {}).forEach(function(k) {
-    url += "&" + k + "=" + encodeURIComponent(
-      typeof params[k] === "object" ? JSON.stringify(params[k]) : params[k]
-    );
+    var v = params[k];
+    url += "&" + k + "=" + encodeURIComponent(typeof v === "object" ? JSON.stringify(v) : v);
   });
-
   fetch(url)
     .then(function(res) { return res.json(); })
     .then(function(data) {
-      if (data.error) {
-        if (onFail) onFail({ message: data.message });
-      } else {
-        if (onSuccess) onSuccess(data);
-      }
+      if (data && data.error) { if (onFail) onFail({ message: data.message }); }
+      else { if (onSuccess) onSuccess(data); }
     })
-    .catch(function(err) {
-      if (onFail) onFail({ message: err.message });
-    });
+    .catch(function(err) { if (onFail) onFail({ message: err.message }); });
 }
 
-// ===== Override google.script.run =====
-window.google = {
-  script: {
-    run: {
-      withSuccessHandler: function(fn) { this._s = fn; return this; },
-      withFailureHandler: function(fn) { this._f = fn; return this; },
+// ===== แทนที่ทุกฟังก์ชันที่เรียก google.script.run =====
 
-      getReportData: function(start, end, source) {
-        gasCall("getReportData",
-          { startDate: start, endDate: end, sourceFilter: source },
-          this._s, this._f);
-      },
-      getEmployeeName: function(empId) {
-        var self = this;
-        gasCall("getEmployeeName", { empId: empId }, function(data) {
-          if (self._s) self._s(data.name);
-        }, this._f);
-      },
-      searchItem: function(keyword) {
-        var self = this;
-        gasCall("searchItem", { keyword: keyword }, function(data) {
-          if (self._s) self._s(data.items);
-        }, this._f);
-      },
-      saveStock: function(data) {
-        gasCall("saveStock", { data: data }, this._s, this._f);
-      },
-      saveStockIn: function(data) {
-        gasCall("saveStockIn", { data: data }, this._s, this._f);
-      },
-      getPendingList: function() {
-        gasCall("getPendingList", {}, this._s, this._f);
-      },
-      approveTransaction: function(id) {
-        gasCall("approveTransaction", { txId: id }, this._s, this._f);
-      },
-      rejectTransaction: function(id, reason) {
-        gasCall("rejectTransaction", { txId: id, reason: reason }, this._s, this._f);
-      }
-    }
+// --- Item Search (Input Page) ---
+function searchInputItem(type) {
+  clearTimeout(timer);
+  timer = setTimeout(function() {
+    var keyword = type === "code"
+      ? document.getElementById("in_itemCode").value.trim()
+      : document.getElementById("in_itemName").value.trim();
+    if (keyword.length < 3) return;
+    gasCall("searchItem", { keyword: keyword }, function(data) {
+      var list = data.items;
+      if (!list || list.length === 0) return;
+      document.getElementById("in_itemCode").value = list[0].code;
+      document.getElementById("in_itemName").value = list[0].name;
+      var spec = document.getElementById("in_spec");
+      spec.innerHTML = "";
+      list.forEach(function(i) {
+        var opt = document.createElement("option");
+        opt.value = i.spec; opt.text = i.spec;
+        spec.appendChild(opt);
+      });
+    }, null);
+  }, 350);
+}
+
+// --- Save Stock In ---
+function saveInput() {
+  var data = {
+    itemCode: document.getElementById("in_itemCode").value.trim(),
+    itemName: document.getElementById("in_itemName").value.trim(),
+    spec:     document.getElementById("in_spec").value,
+    qty:      document.getElementById("in_qty").value.trim(),
+    receiver: document.getElementById("in_receiver").value.trim(),
+    ref:      document.getElementById("in_ref").value.trim(),
+    remark:   document.getElementById("in_remark").value.trim()
+  };
+  if (!data.itemCode || !data.qty || Number(data.qty) <= 0) {
+    showModal({ title: "ข้อมูลไม่ครบ", text: "กรุณากรอก Item Code และ Quantity", type: "error" });
+    return;
   }
-};
+  var btn = document.getElementById("saveInputBtn");
+  btn.innerText = "Saving..."; btn.disabled = true;
+  gasCall("saveStockIn", { data: data }, function(res) {
+    var now = new Date();
+    todayInputList.unshift(Object.assign({}, data, {
+      time: res.time || now.toLocaleTimeString("th-TH"),
+      date: res.date || now.toLocaleDateString("th-TH")
+    }));
+    renderInputTable();
+    clearInputForm();
+    showModal({ title: "บันทึกสำเร็จ", text: "รับ " + data.itemName + " เข้าคลัง " + data.qty + " รายการแล้ว", type: "success", autoClose: 1800 });
+    btn.innerText = "บันทึกรับเข้า"; btn.disabled = false;
+  }, function(err) {
+    showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
+    btn.innerText = "บันทึกรับเข้า"; btn.disabled = false;
+  });
+}
+
+// --- Fetch Employee Name ---
+function fetchEmpName() {
+  clearTimeout(timer);
+  timer = setTimeout(function() {
+    var empId = document.getElementById("empId").value.trim();
+    if (!empId) { document.getElementById("empName").value = ""; return; }
+    gasCall("getEmployeeName", { empId: empId }, function(data) {
+      document.getElementById("empName").value = data.name || "";
+    }, null);
+  }, 300);
+}
+
+// --- Item Search (Requisition Page) ---
+function searchItemClient(type) {
+  clearTimeout(timer);
+  timer = setTimeout(function() {
+    var keyword = type === "code"
+      ? document.getElementById("itemCode").value.trim()
+      : document.getElementById("itemName").value.trim();
+    if (keyword.length < 3) return;
+    lastKeyword = keyword;
+    gasCall("searchItem", { keyword: keyword }, function(data) {
+      var list = data.items;
+      if (keyword !== lastKeyword) return;
+      if (!list || list.length === 0) return;
+      document.getElementById("itemCode").value = list[0].code;
+      document.getElementById("itemName").value = list[0].name;
+      var spec = document.getElementById("spec");
+      spec.innerHTML = "";
+      list.forEach(function(i) {
+        var opt = document.createElement("option");
+        opt.value = i.spec; opt.text = i.spec;
+        spec.appendChild(opt);
+      });
+    }, null);
+  }, 350);
+}
+
+// --- Save Requisition ---
+function saveData() {
+  var data = {
+    empId:    document.getElementById('empId').value.trim(),
+    empName:  document.getElementById('empName').value.trim(),
+    itemCode: document.getElementById('itemCode').value.trim(),
+    itemName: document.getElementById('itemName').value.trim(),
+    spec:     document.getElementById('spec').value,
+    qty:      document.getElementById('qty').value.trim(),
+    issuer:   document.getElementById('issuer').value.trim(),
+    remark:   document.getElementById('remark').value.trim()
+  };
+  if (!data.empId || !data.itemCode || !data.qty) {
+    showModal({ title:"ข้อมูลไม่ครบ", text:"กรุณากรอก Employee ID, Item Code และ Quantity", type:"error" });
+    return;
+  }
+  var now = new Date();
+  data.date   = now.toLocaleDateString("th-TH");
+  data.time   = now.toLocaleTimeString("th-TH");
+  data.status = "รออนุมัติ";
+  var btn = document.getElementById("saveBtn");
+  btn.innerText = "Saving..."; btn.disabled = true;
+  gasCall("saveStock", { data: data }, function() {
+    lastSavedData = data;
+    showSuccessModal();
+    clearForm();
+    btn.innerText = "Save Transaction"; btn.disabled = false;
+  }, function(err) {
+    showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+    btn.innerText = "Save Transaction"; btn.disabled = false;
+  });
+}
+
+// --- Generate Report ---
+function generate() {
+  var start  = document.getElementById('start').value;
+  var end    = document.getElementById('end').value;
+  var source = document.getElementById('sourceFilter').value;
+  if (!start || !end) { showModal({ title:"แจ้งเตือน", text:"กรุณาเลือกวันที่", type:"error" }); return; }
+  var btn = document.getElementById('btn');
+  btn.innerText = "Processing..."; btn.disabled = true;
+  gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function(data) {
+    currentData = data;
+    if (!data.rows || data.rows.length === 0) {
+      showModal({ title:"ไม่พบข้อมูล", text:"ไม่มีข้อมูลในช่วงวันที่เลือก", type:"error" });
+      btn.innerText = "Generate"; btn.disabled = false; return;
+    }
+    document.getElementById("count").innerText = data.rows.length;
+    var head = document.getElementById('tableHead');
+    var body = document.getElementById('tableBody');
+    head.innerHTML = "<tr>" + data.header.map(function(h) {
+      return '<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">' + h + '</th>';
+    }).join("") + "</tr>";
+    body.innerHTML = data.rows.map(function(row) {
+      return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
+        row.map(function(cell, i) {
+          if (i === 4) {
+            var isIn = cell === 'IN';
+            var bg = isIn ? 'rgba(25,135,84,0.08)' : 'rgba(220,53,69,0.08)';
+            var color = isIn ? '#198754' : '#dc3545';
+            var border = isIn ? 'rgba(25,135,84,0.2)' : 'rgba(220,53,69,0.2)';
+            return '<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';">' + cell + '</span></td>';
+          }
+          return '<td style="padding:10px 16px;font-size:13px;color:#4a5568;">' + cell + '</td>';
+        }).join("") + "</tr>";
+    }).join("");
+    document.getElementById('resultArea').classList.remove('hidden');
+    btn.innerText = "Generate"; btn.disabled = false;
+  }, function(err) {
+    showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+    btn.innerText = "Generate"; btn.disabled = false;
+  });
+}
 </script>
 
 </body>
