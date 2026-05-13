@@ -273,6 +273,43 @@ h1, h2, h3, .font-semibold, .font-bold {
   color: #0f1b2d; font-weight: 700; font-size: 13px;
   border: none; cursor: pointer;
 }
+.input-qr-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 4px;
+}
+.input-qr-row .input {
+  flex: 1;
+  margin-top: 0;
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+}
+.qr-scan-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  background: #f0f2f5;
+  border: 1px solid #d1d5db;
+  border-radius: 0 4px 4px 0;
+  color: #4a5568;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+  flex-shrink: 0;
+}
+.qr-scan-trigger:hover {
+  background: #e2e8f0;
+  color: #1a2332;
+}
+.qr-scan-trigger svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
 </style>
 </head>
 
@@ -697,7 +734,19 @@ h1, h2, h3, .font-semibold, .font-bold {
           <div class="input-qr-row">
             <input type="text" id="itemCode" oninput="searchItemClient('code')" class="input">
             <!-- สำหรับ Requisition -->
-            <button class="qr-scan-trigger" onclick="openQR('itemCode')" title="สแกน QR">...</button>
+            <button class="qr-scan-trigger" onclick="openQR('itemCode')" title="สแกน QR">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1"/>
+                  <path d="M14 14h2v2h-2z"/>
+                  <path d="M18 14h3"/>
+                  <path d="M14 18h2"/>
+                  <path d="M18 18h3"/>
+                  <path d="M18 21v-3"/>
+                </svg>
+                สแกน QR
+              </button>
             <input type="file" id="qrFileInput_itemCode" accept="image/*" capture="environment"
               style="display:none" onchange="decodeQRFromFile(this, 'itemCode')">
           </div>
