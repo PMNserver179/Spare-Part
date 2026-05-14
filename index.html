@@ -1544,6 +1544,20 @@ window.onload = () => {
   const savedEmail = localStorage.getItem("pmn_user_email");
   if (savedEmail && savedEmail.includes("@")) {
     applyUserEmail(savedEmail);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("page") === "approve") {
+      const APPROVE_WHITELIST = [
+        "pmnstore48@gmail.com",
+        "jattaphol.c@minebea.co.th",
+        "prapatsorn.n@minebea.co.th",
+        "naruemon.s@minebea.co.th",
+        "wasana.ku@minebea.co.th",
+      ];
+      const allowed = APPROVE_WHITELIST.map(e => e.toLowerCase().trim());
+      if (allowed.includes(savedEmail.toLowerCase().trim())) {
+        showApprove(); // ข้ามไปหน้า Approve เลย
+      }
+    }
     // ไม่แสดง modal — เข้าระบบอัตโนมัติ
   } else {
     document.getElementById("loginModal").style.display = "flex";
