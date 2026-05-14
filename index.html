@@ -577,6 +577,66 @@ h1, h2, h3, .font-semibold, .font-bold {
           </span>
         </button>
       </div>
+      <!-- ต่อจาก div ปุ่ม mt-5 flex gap-3 ของ Input Page -->
+      <div class="mt-3">
+        <button onclick="showAddItemForm()"
+          class="w-full py-2 rounded font-semibold text-sm transition"
+          style="border:1px solid #3b82f6;color:#3b82f6;background:transparent;">
+          <span class="flex items-center justify-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            เพิ่ม Item ใหม่ลงระบบ
+          </span>
+        </button>
+      </div>
+      
+      <!-- ADD ITEM MODAL -->
+      <div id="addItemModal" class="hidden" style="position:fixed;inset:0;z-index:8000;
+        background:rgba(15,27,45,0.7);display:none;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:28px;width:420px;max-width:92vw;
+          border:1px solid rgba(201,168,76,0.2);box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+          
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:#1a2332;">เพิ่ม Item ใหม่</div>
+              <div style="font-size:12px;color:#8896a9;">บันทึกลง sparepart2025</div>
+            </div>
+            <button onclick="closeAddItemModal()"
+              style="width:28px;height:28px;border-radius:50%;border:1px solid #dde2ea;
+              background:#f8f9fb;color:#8896a9;font-size:14px;cursor:pointer;">✕</button>
+          </div>
+      
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs" style="color:#8896a9;">Item Code <span style="color:#dc3545;">*</span></label>
+              <input type="text" id="new_itemCode" class="input" placeholder="เช่น SP-001">
+            </div>
+            <div>
+              <label class="text-xs" style="color:#8896a9;">Item Name <span style="color:#dc3545;">*</span></label>
+              <input type="text" id="new_itemName" class="input" placeholder="เช่น Bearing 6205">
+            </div>
+            <div>
+              <label class="text-xs" style="color:#8896a9;">Spec</label>
+              <input type="text" id="new_itemSpec" class="input" placeholder="เช่น 2RS, 1 inch">
+            </div>
+          </div>
+      
+          <div class="flex gap-3 mt-5">
+            <button onclick="closeAddItemModal()"
+              class="w-1/3 py-2 rounded text-sm"
+              style="border:1px solid #dde2ea;color:#8896a9;background:#f8f9fb;">
+              ยกเลิก
+            </button>
+            <button onclick="saveNewItem()" id="saveNewItemBtn"
+              class="flex-1 py-2 rounded font-semibold text-sm"
+              style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">
+              <span class="flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                บันทึก Item
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- TODAY LIST -->
@@ -1022,66 +1082,7 @@ h1, h2, h3, .font-semibold, .font-bold {
     </div>
   </div>
 </div>
-<!-- ต่อจาก div ปุ่ม mt-5 flex gap-3 ของ Input Page -->
-<div class="mt-3">
-  <button onclick="showAddItemForm()"
-    class="w-full py-2 rounded font-semibold text-sm transition"
-    style="border:1px solid #3b82f6;color:#3b82f6;background:transparent;">
-    <span class="flex items-center justify-center gap-2">
-      <i data-lucide="plus-circle" class="w-4 h-4"></i>
-      เพิ่ม Item ใหม่ลงระบบ
-    </span>
-  </button>
-</div>
 
-<!-- ADD ITEM MODAL -->
-<div id="addItemModal" class="hidden" style="position:fixed;inset:0;z-index:8000;
-  background:rgba(15,27,45,0.7);display:none;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px;width:420px;max-width:92vw;
-    border:1px solid rgba(201,168,76,0.2);box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-    
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <div>
-        <div style="font-size:15px;font-weight:700;color:#1a2332;">เพิ่ม Item ใหม่</div>
-        <div style="font-size:12px;color:#8896a9;">บันทึกลง sparepart2025</div>
-      </div>
-      <button onclick="closeAddItemModal()"
-        style="width:28px;height:28px;border-radius:50%;border:1px solid #dde2ea;
-        background:#f8f9fb;color:#8896a9;font-size:14px;cursor:pointer;">✕</button>
-    </div>
-
-    <div class="space-y-3">
-      <div>
-        <label class="text-xs" style="color:#8896a9;">Item Code <span style="color:#dc3545;">*</span></label>
-        <input type="text" id="new_itemCode" class="input" placeholder="เช่น SP-001">
-      </div>
-      <div>
-        <label class="text-xs" style="color:#8896a9;">Item Name <span style="color:#dc3545;">*</span></label>
-        <input type="text" id="new_itemName" class="input" placeholder="เช่น Bearing 6205">
-      </div>
-      <div>
-        <label class="text-xs" style="color:#8896a9;">Spec</label>
-        <input type="text" id="new_itemSpec" class="input" placeholder="เช่น 2RS, 1 inch">
-      </div>
-    </div>
-
-    <div class="flex gap-3 mt-5">
-      <button onclick="closeAddItemModal()"
-        class="w-1/3 py-2 rounded text-sm"
-        style="border:1px solid #dde2ea;color:#8896a9;background:#f8f9fb;">
-        ยกเลิก
-      </button>
-      <button onclick="saveNewItem()" id="saveNewItemBtn"
-        class="flex-1 py-2 rounded font-semibold text-sm"
-        style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">
-        <span class="flex items-center justify-center gap-2">
-          <i data-lucide="save" class="w-4 h-4"></i>
-          บันทึก Item
-        </span>
-      </button>
-    </div>
-  </div>
-</div>
 
 <script>
 let currentData = null;
