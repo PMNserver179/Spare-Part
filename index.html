@@ -1535,14 +1535,16 @@ function searchItemClient(type) {
 window.onload = () => {
   lucide.createIcons();
 
+  // ซ่อน loginModal ก่อนเสมอ
+  document.getElementById("loginModal").style.display = "none";
+
   const savedEmail = localStorage.getItem("pmn_user_email");
   if (savedEmail && savedEmail.includes("@")) {
     applyUserEmail(savedEmail);
+    // ไม่แสดง modal — เข้าระบบอัตโนมัติ
   } else {
     document.getElementById("loginModal").style.display = "flex";
-    setTimeout(() => {
-      document.getElementById("loginEmailInput").focus();
-    }, 300);
+    setTimeout(() => document.getElementById("loginEmailInput").focus(), 300);
   }
 };
 
@@ -1555,10 +1557,9 @@ function submitLoginEmail() {
   }
   document.getElementById("loginError").style.display = "none";
   document.getElementById("loginModal").style.display = "none";
-  localStorage.setItem("pmn_user_email", email);
-  applyUserEmail(email);
+  
+  applyUserEmail(email); // ← จัดการทุกอย่างรวมถึง localStorage
 
-  // ✅ Alert box Login สำเร็จ
   const name = email.split("@")[0];
   showModal({
     title: "เข้าสู่ระบบสำเร็จ",
@@ -1567,12 +1568,19 @@ function submitLoginEmail() {
     autoClose: 1800
   });
 }
-
+  
 function applyUserEmail(email) {
   const display = email ? email.split("@")[0] : "USER";
   document.getElementById("userEmail").innerText = display;
-  document.getElementById("issuer").value = email;
 
+  // set issuer ทุก field ที่มี
+  const issuerEl = document.getElementById("issuer");
+  if (issuerEl) issuerEl.value = email;
+
+  const receiverEl = document.getElementById("in_receiver");
+  if (receiverEl) receiverEl.value = email;
+
+  // เช็ค whitelist
   const APPROVE_WHITELIST = [
     "pmnstore48@gmail.com",
     "jattaphol.c@minebea.co.th",
@@ -1584,7 +1592,11 @@ function applyUserEmail(email) {
   if (allowed.includes(email.toLowerCase().trim())) {
     document.getElementById("approveCard").style.display = "block";
   }
+
+  // บันทึก localStorage ทุกครั้ง
+  localStorage.setItem("pmn_user_email", email);
 }
+
 
 // ================= SAVE REQUISITION =================
 function saveData() {
