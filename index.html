@@ -376,6 +376,15 @@ h1, h2, h3, .font-semibold, .font-bold {
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
+       <!-- ✅ เพิ่มปุ่ม History ตรงนี้ -->
+      <button onclick="showHistory()" title="ประวัติการเบิก"
+        style="width:36px;height:36px;border-radius:10px;border:1px solid rgba(201,168,76,0.4);
+        background:rgba(201,168,76,0.1);color:#f0d080;display:flex;align-items:center;
+        justify-content:center;cursor:pointer;transition:0.2s;"
+        onmouseover="this.style.background='rgba(201,168,76,0.25)'"
+        onmouseout="this.style.background='rgba(201,168,76,0.1)'">
+        <i data-lucide="clock-3" style="width:18px;height:18px;"></i>
+      </button>
     <div class="text-sm" id="userEmail" style="color:rgba(255,255,255,0.55);">USER</div>
     <button onclick="logoutUser()" 
       style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
@@ -1027,7 +1036,115 @@ h1, h2, h3, .font-semibold, .font-bold {
   </div>
 </div>
 
+<!-- ================= HISTORY PAGE ================= -->
+<div id="historyPage" class="hidden min-h-screen" style="background:#f0f2f5;">
+  <div class="topbar-main shadow">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="topbar-logo"><i data-lucide="clock-3" class="w-5 h-5 text-[#0f1b2d]"></i></div>
+        <div>
+          <div class="topbar-title">PMN SYSTEM</div>
+          <div class="topbar-sub">Issue History</div>
+        </div>
+        <button onclick="backToMenu()" class="topbar-btn" style="display:flex;align-items:center;gap:6px;">
+          <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="gold-line"></div>
 
+  <div class="max-w-6xl mx-auto p-6 space-y-5">
+
+    <!-- FILTER BAR -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+      <div class="flex flex-wrap items-center gap-3">
+
+        <!-- Period Toggle -->
+        <div style="display:flex;gap:0;border:1px solid #dde2ea;border-radius:8px;overflow:hidden;">
+          <button id="hBtn_day" onclick="setHistoryPeriod('day')"
+            class="px-4 py-2 text-sm font-medium transition"
+            style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">รายวัน</button>
+          <button id="hBtn_month" onclick="setHistoryPeriod('month')"
+            class="px-4 py-2 text-sm font-medium transition"
+            style="background:#f8f9fb;color:#8896a9;">รายเดือน</button>
+          <button id="hBtn_year" onclick="setHistoryPeriod('year')"
+            class="px-4 py-2 text-sm font-medium transition"
+            style="background:#f8f9fb;color:#8896a9;">รายปี</button>
+        </div>
+
+        <!-- Date Picker (เปลี่ยนตาม period) -->
+        <input type="date" id="h_dateDay"
+          class="border rounded-lg px-3 py-2 text-sm" style="border-color:#dde2ea;">
+
+        <input type="month" id="h_dateMonth"
+          class="border rounded-lg px-3 py-2 text-sm hidden" style="border-color:#dde2ea;">
+
+        <select id="h_dateYear"
+          class="border rounded-lg px-3 py-2 text-sm hidden" style="border-color:#dde2ea;background:#fff;"></select>
+
+        <button onclick="loadHistory()"
+          class="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2"
+          style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">
+          <i data-lucide="search" style="width:14px;height:14px;"></i> ค้นหา
+        </button>
+
+        <!-- Admin only: search by EmpID -->
+        <div id="h_adminSearch" class="hidden flex items-center gap-2">
+          <input type="text" id="h_empFilter" placeholder="กรอง Emp ID..."
+            class="border rounded-lg px-3 py-2 text-sm" style="border-color:#dde2ea;width:140px;">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SUMMARY BADGES -->
+    <div class="grid grid-cols-3 gap-4" id="h_summary">
+      <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+        <div class="text-2xl font-bold" style="color:#c9a84c;" id="h_totalCount">0</div>
+        <div class="text-xs mt-1" style="color:#8896a9;">รายการทั้งหมด</div>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+        <div class="text-2xl font-bold" style="color:#198754;" id="h_approvedCount">0</div>
+        <div class="text-xs mt-1" style="color:#8896a9;">อนุมัติแล้ว</div>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+        <div class="text-2xl font-bold" style="color:#856404;" id="h_pendingCount">0</div>
+        <div class="text-xs mt-1" style="color:#8896a9;">รออนุมัติ</div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="list" class="w-4 h-4 text-gray-500"></i>
+        <div class="font-medium text-gray-700">รายการเบิก</div>
+        <div id="h_countBadge" class="text-xs bg-gray-200 px-2 py-1 rounded-full">0 รายการ</div>
+        <div id="h_userBadge" class="text-xs px-2 py-1 rounded-full ml-auto"
+          style="background:rgba(99,102,241,0.1);color:#4338ca;"></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr style="border-bottom:2px solid #c9a84c;">
+              <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;text-transform:uppercase;">ID</th>
+              <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;text-transform:uppercase;">Emp</th>
+              <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;text-transform:uppercase;">Item</th>
+              <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;text-transform:uppercase;">Qty</th>
+              <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;text-transform:uppercase;">วันที่</th>
+              <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;text-transform:uppercase;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="h_tableBody">
+            <tr><td colspan="6" class="py-6 text-center text-xs" style="color:#8896a9;">เลือกช่วงเวลาแล้วกดค้นหา</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+  
 <!-- TOAST -->
 <div id="toast" class="fixed top-5 right-5 px-4 py-3 rounded shadow-lg text-white text-sm hidden transition-all duration-300"></div>
 
@@ -1342,6 +1459,7 @@ function backToMenu() {
   document.getElementById("inputPage").classList.add("hidden");
   document.getElementById("successModal").classList.add("hidden");
   document.getElementById("menuPage").classList.remove("hidden");
+  document.getElementById("historyPage").classList.add("hidden");
   stopAutoRefresh();
   closeQR();
 }
@@ -1860,6 +1978,121 @@ function saveNewItem() {
     showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
     btn.innerText = "บันทึก Item"; btn.disabled = false;
   });
+}
+  
+// ================= HISTORY =================
+var historyPeriod = 'day';
+var ADMIN_EMPIDS  = ['T5157']; // เพิ่ม Admin EmpID ได้ที่นี่
+
+function showHistory() {
+  document.getElementById("menuPage").classList.add("hidden");
+  document.getElementById("historyPage").classList.remove("hidden");
+  lucide.createIcons();
+
+  // set default date = today
+  var today = new Date();
+  var yyyy  = today.getFullYear();
+  var mm    = String(today.getMonth()+1).padStart(2,'0');
+  var dd    = String(today.getDate()).padStart(2,'0');
+  document.getElementById("h_dateDay").value   = yyyy+'-'+mm+'-'+dd;
+  document.getElementById("h_dateMonth").value = yyyy+'-'+mm;
+
+  // populate year dropdown
+  var yearSel = document.getElementById("h_dateYear");
+  yearSel.innerHTML = "";
+  for (var y = yyyy; y >= yyyy-5; y--) {
+    var opt = document.createElement("option");
+    opt.value = y; opt.text = y;
+    yearSel.appendChild(opt);
+  }
+
+  // check admin
+  var email  = localStorage.getItem("pmn_user_email") || "";
+  var empId  = document.getElementById("empId") ? document.getElementById("empId").value.trim() : "";
+  var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
+
+  if (isAdmin) {
+    document.getElementById("h_adminSearch").classList.remove("hidden");
+    document.getElementById("h_userBadge").innerText = "👑 Admin — ดูได้ทั้งหมด";
+  } else {
+    document.getElementById("h_adminSearch").classList.add("hidden");
+    document.getElementById("h_userBadge").innerText = "👤 " + email.split("@")[0];
+  }
+
+  setHistoryPeriod('day');
+}
+
+function setHistoryPeriod(p) {
+  historyPeriod = p;
+  ['day','month','year'].forEach(function(x) {
+    var btn = document.getElementById("hBtn_"+x);
+    if (x === p) {
+      btn.style.background = 'linear-gradient(135deg,#c9a84c,#f0d080)';
+      btn.style.color = '#0f1b2d';
+    } else {
+      btn.style.background = '#f8f9fb';
+      btn.style.color = '#8896a9';
+    }
+  });
+  document.getElementById("h_dateDay").classList.toggle("hidden",   p !== 'day');
+  document.getElementById("h_dateMonth").classList.toggle("hidden", p !== 'month');
+  document.getElementById("h_dateYear").classList.toggle("hidden",  p !== 'year');
+}
+
+function loadHistory() {
+  var email   = localStorage.getItem("pmn_user_email") || "";
+  var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
+  var empFilter = isAdmin ? (document.getElementById("h_empFilter").value.trim() || "") : email.split("@")[0];
+
+  var period = historyPeriod;
+  var dateVal = "";
+  if (period === 'day')   dateVal = document.getElementById("h_dateDay").value;
+  if (period === 'month') dateVal = document.getElementById("h_dateMonth").value;
+  if (period === 'year')  dateVal = document.getElementById("h_dateYear").value;
+
+  if (!dateVal) { showModal({ title:"แจ้งเตือน", text:"กรุณาเลือกวันที่", type:"error" }); return; }
+
+  document.getElementById("h_tableBody").innerHTML =
+    '<tr><td colspan="6" class="py-6 text-center text-xs" style="color:#8896a9;">กำลังโหลด...</td></tr>';
+
+  gasCall("getIssueHistory", {
+    period: period,
+    dateVal: dateVal,
+    empFilter: isAdmin ? (document.getElementById("h_empFilter").value.trim() || "ALL") : empFilter,
+    isAdmin: isAdmin ? "1" : "0"
+  }, function(res) {
+    if (!res.rows) { showModal({ title:"เกิดข้อผิดพลาด", text:"ไม่สามารถโหลดข้อมูลได้", type:"error" }); return; }
+    renderHistoryTable(res.rows);
+  }, function(err) {
+    showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+  });
+}
+
+function renderHistoryTable(rows) {
+  document.getElementById("h_countBadge").innerText = rows.length + " รายการ";
+  document.getElementById("h_totalCount").innerText    = rows.length;
+  document.getElementById("h_approvedCount").innerText = rows.filter(function(r){ return r.status === "อนุมัติแล้ว"; }).length;
+  document.getElementById("h_pendingCount").innerText  = rows.filter(function(r){ return r.status === "รออนุมัติ"; }).length;
+
+  if (rows.length === 0) {
+    document.getElementById("h_tableBody").innerHTML =
+      '<tr><td colspan="6" class="py-6 text-center text-xs" style="color:#8896a9;">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>';
+    return;
+  }
+
+  document.getElementById("h_tableBody").innerHTML = rows.map(function(r) {
+    var bg="#fffbf0", color="#856404";
+    if (r.status==="อนุมัติแล้ว") { bg="#e8f5ee"; color="#198754"; }
+    if (r.status==="ไม่อนุมัติ")  { bg="#fdecea"; color="#dc3545"; }
+    return '<tr style="border-top:1px solid #eef0f3;" onmouseover="this.style.background=\'#f8f9fb\'" onmouseout="this.style.background=\'transparent\'">'
+      + '<td class="py-2 px-3" style="color:#8896a9;font-size:12px;">'+ r.id +'</td>'
+      + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">'+ r.empName +' <span style="color:#8896a9;font-size:11px;">('+r.empId+')</span></td>'
+      + '<td class="py-2 px-3" style="color:#4a5568;">'+ r.itemName +'</td>'
+      + '<td class="py-2 px-3"><span style="font-weight:700;color:#c9a84c;">'+ r.qty +'</span></td>'
+      + '<td class="py-2 px-3" style="color:#8896a9;font-size:12px;">'+ r.date +'</td>'
+      + '<td class="py-2 px-3"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'+ r.status +'</span></td>'
+      + '</tr>';
+  }).join("");
 }
 </script>
 
