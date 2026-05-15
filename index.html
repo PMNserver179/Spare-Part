@@ -2456,6 +2456,121 @@ function generate() {
     btn.innerText = "Generate"; btn.disabled = false;
   });
 }
+  
+// ================= HISTORY =================
+var historyPeriod = 'day';
+var ADMIN_EMPIDS  = ['T5157']; // เพิ่ม Admin EmpID ได้ที่นี่
+
+function showHistory() {
+  document.getElementById("menuPage").classList.add("hidden");
+  document.getElementById("historyPage").classList.remove("hidden");
+  lucide.createIcons();
+
+  // set default date = today
+  var today = new Date();
+  var yyyy  = today.getFullYear();
+  var mm    = String(today.getMonth()+1).padStart(2,'0');
+  var dd    = String(today.getDate()).padStart(2,'0');
+  document.getElementById("h_dateDay").value   = yyyy+'-'+mm+'-'+dd;
+  document.getElementById("h_dateMonth").value = yyyy+'-'+mm;
+
+  // populate year dropdown
+  var yearSel = document.getElementById("h_dateYear");
+  yearSel.innerHTML = "";
+  for (var y = yyyy; y >= yyyy-5; y--) {
+    var opt = document.createElement("option");
+    opt.value = y; opt.text = y;
+    yearSel.appendChild(opt);
+  }
+
+  // check admin
+  var email  = localStorage.getItem("pmn_user_email") || "";
+  var empId  = document.getElementById("empId") ? document.getElementById("empId").value.trim() : "";
+  var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
+
+  if (isAdmin) {
+    document.getElementById("h_adminSearch").classList.remove("hidden");
+    document.getElementById("h_userBadge").innerText = "👑 Admin — ดูได้ทั้งหมด";
+  } else {
+    document.getElementById("h_adminSearch").classList.add("hidden");
+    document.getElementById("h_userBadge").innerText = "👤 " + email.split("@")[0];
+  }
+
+  setHistoryPeriod('day');
+}
+
+function setHistoryPeriod(p) {
+  historyPeriod = p;
+  ['day','month','year'].forEach(function(x) {
+    var btn = document.getElementById("hBtn_"+x);
+    if (x === p) {
+      btn.style.background = 'linear-gradient(135deg,#c9a84c,#f0d080)';
+      btn.style.color = '#0f1b2d';
+    } else {
+      btn.style.background = '#f8f9fb';
+      btn.style.color = '#8896a9';
+    }
+  });
+  document.getElementById("h_dateDay").classList.toggle("hidden",   p !== 'day');
+  document.getElementById("h_dateMonth").classList.toggle("hidden", p !== 'month');
+  document.getElementById("h_dateYear").classList.toggle("hidden",  p !== 'year');
+}
+
+function loadHistory() {
+  var email   = localStorage.getItem("pmn_user_email") || "";
+  var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
+  var empFilter = isAdmin ? (document.getElementById("h_empFilter").value.trim() || "") : email.split("@")[0];
+
+  var period = historyPeriod;
+  var dateVal = "";
+  if (period === 'day')   dateVal = document.getElementById("h_dateDay").value;
+  if (period === 'month') dateVal = document.getElementById("h_dateMonth").value;
+  if (period === 'year')  dateVal = document.getElementById("h_dateYear").value;
+
+  if (!dateVal) { showModal({ title:"แจ้งเตือน", text:"กรุณาเลือกวันที่", type:"error" }); return; }
+
+  document.getElementById("h_tableBody").innerHTML =
+    '<tr><td colspan="6" class="py-6 text-center text-xs" style="color:#8896a9;">กำลังโหลด...</td></tr>';
+
+  gasCall("getIssueHistory", {
+    period: period,
+    dateVal: dateVal,
+    empFilter: isAdmin ? (document.getElementById("h_empFilter").value.trim() || "ALL") : empFilter,
+    isAdmin: isAdmin ? "1" : "0"
+  }, function(res) {
+    if (!res.rows) { showModal({ title:"เกิดข้อผิดพลาด", text:"ไม่สามารถโหลดข้อมูลได้", type:"error" }); return; }
+    renderHistoryTable(res.rows);
+  }, function(err) {
+    showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
+  });
+}
+
+function renderHistoryTable(rows) {
+  document.getElementById("h_countBadge").innerText = rows.length + " รายการ";
+  document.getElementById("h_totalCount").innerText    = rows.length;
+  document.getElementById("h_approvedCount").innerText = rows.filter(function(r){ return r.status === "อนุมัติแล้ว"; }).length;
+  document.getElementById("h_pendingCount").innerText  = rows.filter(function(r){ return r.status === "รออนุมัติ"; }).length;
+
+  if (rows.length === 0) {
+    document.getElementById("h_tableBody").innerHTML =
+      '<tr><td colspan="6" class="py-6 text-center text-xs" style="color:#8896a9;">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>';
+    return;
+  }
+
+  document.getElementById("h_tableBody").innerHTML = rows.map(function(r) {
+    var bg="#fffbf0", color="#856404";
+    if (r.status==="อนุมัติแล้ว") { bg="#e8f5ee"; color="#198754"; }
+    if (r.status==="ไม่อนุมัติ")  { bg="#fdecea"; color="#dc3545"; }
+    return '<tr style="border-top:1px solid #eef0f3;" onmouseover="this.style.background=\'#f8f9fb\'" onmouseout="this.style.background=\'transparent\'">'
+      + '<td class="py-2 px-3" style="color:#8896a9;font-size:12px;">'+ r.id +'</td>'
+      + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">'+ r.empName +' <span style="color:#8896a9;font-size:11px;">('+r.empId+')</span></td>'
+      + '<td class="py-2 px-3" style="color:#4a5568;">'+ r.itemName +'</td>'
+      + '<td class="py-2 px-3"><span style="font-weight:700;color:#c9a84c;">'+ r.qty +'</span></td>'
+      + '<td class="py-2 px-3" style="color:#8896a9;font-size:12px;">'+ r.date +'</td>'
+      + '<td class="py-2 px-3"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'+ r.status +'</span></td>'
+      + '</tr>';
+  }).join("");
+}
 </script>
 
 </body>
