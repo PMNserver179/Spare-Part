@@ -2378,7 +2378,7 @@ function showHistory() {
   // check admin
   var email  = localStorage.getItem("pmn_user_email") || "";
   var empId  = document.getElementById("empId") ? document.getElementById("empId").value.trim() : "";
-  var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
+  var isAdmin = HISTORY_ADMIN.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
 
   if (isAdmin) {
     document.getElementById("h_adminSearch").classList.remove("hidden");
@@ -2410,7 +2410,7 @@ function setHistoryPeriod(p) {
 
 function loadHistory() {
   var email   = localStorage.getItem("pmn_user_email") || "";
-  var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
+  var isAdmin = HISTORY_ADMIN.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
 
   // ✅ แก้ตรงนี้ — ใช้ email เต็มๆ แทน email.split("@")[0]
   var empFilter = isAdmin ? (document.getElementById("h_empFilter").value.trim() || "ALL") : email;
