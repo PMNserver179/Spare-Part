@@ -1122,7 +1122,7 @@ h1, h2, h3, .font-semibold, .font-bold {
         <div class="font-medium text-gray-700">รายการเบิก</div>
         <div id="h_countBadge" class="text-xs bg-gray-200 px-2 py-1 rounded-full">0 รายการ</div>
         <div id="h_userBadge" class="text-xs px-2 py-1 rounded-full ml-auto"
-          style="background:rgba(99,102,241,0.1);color:#4338ca;"></div>
+        style="background:rgba(99,102,241,0.1);color:#4338ca;display:flex;align-items:center;gap:4px;"></div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -2381,11 +2381,13 @@ function showHistory() {
   var isAdmin = HISTORY_ADMIN.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
 
   if (isAdmin) {
-    document.getElementById("h_adminSearch").classList.remove("hidden");
-    document.getElementById("h_userBadge").innerText = "👑 Admin — ดูได้ทั้งหมด";
+  document.getElementById("h_adminSearch").classList.remove("hidden");
+  document.getElementById("h_userBadge").innerHTML = 
+    '<i data-lucide="shield-check" style="width:13px;height:13px;display:inline;margin-right:4px;"></i> Admin';
   } else {
     document.getElementById("h_adminSearch").classList.add("hidden");
-    document.getElementById("h_userBadge").innerText = "👤 " + email.split("@")[0];
+    document.getElementById("h_userBadge").innerHTML = 
+      '<i data-lucide="user" style="width:13px;height:13px;display:inline;margin-right:4px;"></i>' + email.split("@")[0];
   }
 
   setHistoryPeriod('day');
