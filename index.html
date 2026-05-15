@@ -2404,7 +2404,9 @@ function setHistoryPeriod(p) {
 function loadHistory() {
   var email   = localStorage.getItem("pmn_user_email") || "";
   var isAdmin = APPROVE_WHITELIST.map(function(e){ return e.toLowerCase(); }).includes(email.toLowerCase());
-  var empFilter = isAdmin ? (document.getElementById("h_empFilter").value.trim() || "") : email.split("@")[0];
+
+  // ✅ แก้ตรงนี้ — ใช้ email เต็มๆ แทน email.split("@")[0]
+  var empFilter = isAdmin ? (document.getElementById("h_empFilter").value.trim() || "ALL") : email;
 
   var period = historyPeriod;
   var dateVal = "";
@@ -2420,7 +2422,8 @@ function loadHistory() {
   gasCall("getIssueHistory", {
     period: period,
     dateVal: dateVal,
-    empFilter: isAdmin ? (document.getElementById("h_empFilter").value.trim() || "ALL") : empFilter,
+    // ✅ แก้ตรงนี้ — ส่ง empFilter ที่แก้แล้ว
+    empFilter: empFilter,
     isAdmin: isAdmin ? "1" : "0"
   }, function(res) {
     if (!res.rows) { showModal({ title:"เกิดข้อผิดพลาด", text:"ไม่สามารถโหลดข้อมูลได้", type:"error" }); return; }
