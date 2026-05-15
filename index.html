@@ -1875,7 +1875,7 @@ function approve(id) {
         }, function(err) {
           showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
         });
-      }, 350);
+      }, 0);
     }
   });
 }
@@ -1897,7 +1897,7 @@ function reject(id) {
         }, function(err) {
           showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
         });
-      }, 350);
+      }, 0);
     }
   });
 }
