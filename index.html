@@ -1369,6 +1369,7 @@ h1, h2, h3, .font-semibold, .font-bold {
                 <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">เครื่องมือ</th>
                 <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">จำนวน</th>
                 <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">วันที่ยืม</th>
+                <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">วันที่คืน</th>
                 <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">Status</th>
                 <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">Action</th>
               </tr>
@@ -2799,7 +2800,7 @@ function loadMyToolBorrows() {
     document.getElementById("myToolBadge").innerText = rows.length + " รายการ";
     if (rows.length === 0) {
       document.getElementById("myToolTable").innerHTML =
-        '<tr><td colspan="6" class="py-4 text-center text-xs" style="color:#8896a9;">ไม่มีรายการ</td></tr>';
+        '<tr><td colspan="7" class="py-4 text-center text-xs" style="color:#8896a9;">ไม่มีรายการ</td></tr>';
       return;
     }
     document.getElementById("myToolTable").innerHTML = rows.map(function(r) {
@@ -2807,7 +2808,9 @@ function loadMyToolBorrows() {
       if (r.status==="อนุมัติแล้ว") { bg="#e8f5ee"; color="#198754"; }
       if (r.status==="คืนแล้ว")     { bg="#e8f0fe"; color="#4338ca"; }
       if (r.status==="ไม่อนุมัติ")  { bg="#fdecea"; color="#dc3545"; }
-      var returnBtn = (r.status==="อนุมัติแล้ว")
+      // ✅ เปลี่ยนข้อความที่แสดง
+      var statusText = r.status;
+      if (r.status==="อนุมัติแล้ว") statusText = "กำลังยืม";
         ? '<button onclick="returnTool(\''+r.id+'\')" style="background:#4338ca;color:white;padding:4px 8px;border-radius:4px;font-size:11px;">คืน</button>'
         : '-';
       return '<tr style="border-top:1px solid #eef0f3;">'
@@ -2815,7 +2818,8 @@ function loadMyToolBorrows() {
         + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">'+ r.itemName +' <span style="color:#8896a9;font-size:11px;">('+r.spec+')</span></td>'
         + '<td class="py-2 px-3" style="color:#f97316;font-weight:700;">'+ r.qty +'</td>'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.borrowDate +'</td>'
-        + '<td class="py-2 px-3"><span style="padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'+ r.status +'</span></td>'
+        + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.returnDate +'</td>' // ✅ เพิ่ม
+        + '<td class="py-2 px-3"><span style="padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'+ statusText +'</span></td>'
         + '<td class="py-2 px-3">'+ returnBtn +'</td>'
         + '</tr>';
     }).join("");
