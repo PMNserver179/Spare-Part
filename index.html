@@ -1673,6 +1673,7 @@ function backToMenu() {
   document.getElementById("historyPage").classList.add("hidden");
   document.getElementById("toolBorrowPage").classList.add("hidden");
   stopAutoRefresh();
+  clearInterval(toolRefreshTimer);
   closeQR();
 }
 
@@ -2684,6 +2685,7 @@ function renderHistoryTable(rows) {
 // ================= TOOL BORROW =================
 var toolTimer;
 var toolIsAdmin = false;
+var toolRefreshTimer; // ✅ เพิ่มตรงนี้
 
 function showToolBorrow() {
   document.getElementById("menuPage").classList.add("hidden");
@@ -2691,7 +2693,6 @@ function showToolBorrow() {
   lucide.createIcons();
   var email = localStorage.getItem("pmn_user_email") || "";
   document.getElementById("tool_borrower").value = email;
-
   gasCall("getToolUserRole", { email: email }, function(res) {
     toolIsAdmin = res.role === "Admin";
     var adminTab = document.getElementById("toolAdminTab");
@@ -2702,11 +2703,8 @@ function showToolBorrow() {
     loadMyToolBorrows();
     if (toolIsAdmin) loadToolApproveList();
   }, null);
-
   showToolTab('borrow');
   loadToolStatus();
-
-  // ✅ เพิ่มตรงนี้
   document.getElementById("tool_spec").addEventListener("change", function() {
     var selected = this.options[this.selectedIndex];
     var bal = selected ? Number(selected.dataset.balance) : 0;
@@ -2714,7 +2712,17 @@ function showToolBorrow() {
     document.getElementById("tool_balanceText").innerText = bal + " ชิ้น";
     document.getElementById("tool_balanceText").style.color = bal > 0 ? '#198754' : '#dc3545';
   });
+
+  // ✅ Auto refresh ทุก 30 วินาที
+  clearInterval(toolRefreshTimer);
+  toolRefreshTimer = setInterval(function() {
+    var em = localStorage.getItem("pmn_user_email") || "";
+    loadMyToolBorrows();
+    loadToolStatus();
+    if (toolIsAdmin) loadToolApproveList();
+  }, 30000);
 }
+
 function showToolTab(tab) {
   ['borrow','approve','status'].forEach(function(t) {
     document.getElementById("toolTab_"+t).classList.toggle("hidden", t !== tab);
