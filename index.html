@@ -1296,7 +1296,7 @@ h1, h2, h3, .font-semibold, .font-bold {
           <i data-lucide="wrench" class="w-4 h-4"></i> ฟอร์มยืมเครื่องมือ
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <!--div>
             <label class="text-xs" style="color:#8896a9;">Item Code</label>
             <div class="input-qr-row">
               <input type="text" id="tool_itemCode" oninput="searchToolItem('code')" class="input" placeholder="พิมพ์รหัสเครื่องมือ">
@@ -1309,7 +1309,7 @@ h1, h2, h3, .font-semibold, .font-bold {
                 สแกน QR
               </button>
             </div>
-          </div>
+        </div-->
           <div>
             <label class="text-xs" style="color:#8896a9;">ชื่อเครื่องมือ</label>
             <input type="text" id="tool_itemName" oninput="searchToolItem()" class="input" placeholder="พิมพ์ชื่อเครื่องมือ">
@@ -2740,7 +2740,6 @@ function searchToolItem() {
     if (keyword.length < 2) return;
     gasCall("searchToolItem", { keyword: keyword }, function(res) {
       if (!res.items || res.items.length === 0) return;
-
       var spec = document.getElementById("tool_spec");
       spec.innerHTML = "";
       res.items.forEach(function(i) {
@@ -2750,7 +2749,6 @@ function searchToolItem() {
         opt.dataset.balance = i.balance;
         spec.appendChild(opt);
       });
-
       document.getElementById("tool_statusBox").classList.remove("hidden");
       document.getElementById("tool_balanceText").innerText = res.items[0].balance + " ชิ้น";
       document.getElementById("tool_balanceText").style.color = res.items[0].balance > 0 ? '#198754' : '#dc3545';
@@ -2759,7 +2757,6 @@ function searchToolItem() {
 }
 
 function clearToolForm() {
-  document.getElementById("tool_itemCode").value = "";
   document.getElementById("tool_itemName").value = "";
   document.getElementById("tool_spec").innerHTML = "";
   document.getElementById("tool_qty").value = "1";
