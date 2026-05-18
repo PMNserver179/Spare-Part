@@ -2855,21 +2855,26 @@ function loadToolApproveList() {
 }
 
 function loadToolStatus() {
-  gasCall("getToolStatus", {}, function(res) {
+  if (!toolIsAdmin) return; // ✅ เฉพาะ Admin
+  gasCall("getAllToolBorrows", {}, function(res) {
     var rows = res.rows || [];
     if (rows.length === 0) {
       document.getElementById("toolStatusTable").innerHTML =
-        '<tr><td colspan="5" class="py-4 text-center text-xs" style="color:#8896a9;">ไม่มีข้อมูล</td></tr>';
+        '<tr><td colspan="6" class="py-4 text-center text-xs" style="color:#8896a9;">ไม่มีข้อมูล</td></tr>';
       return;
     }
     document.getElementById("toolStatusTable").innerHTML = rows.map(function(r) {
-      var color = r.balance > 0 ? '#198754' : '#dc3545';
-      return '<tr style="border-top:1px solid #eef0f3;" onmouseover="this.style.background=\'#f8f9fb\'" onmouseout="this.style.background=\'transparent\'">'
-        + '<td class="py-2 px-3" style="color:#8896a9;font-size:12px;">'+ r.code +'</td>'
-        + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">'+ r.name +'</td>'
-        + '<td class="py-2 px-3" style="color:#4a5568;">'+ r.spec +'</td>'
-        + '<td class="py-2 px-3"><span style="font-weight:700;color:'+color+';">'+ r.balance +'</span></td>'
-        + '<td class="py-2 px-3" style="color:#8896a9;">'+ r.total +'</td>'
+      var bg="#fffbf0", color="#856404", label="รออนุมัติ";
+      if (r.status==="อนุมัติแล้ว")                    { bg="#fff3e0"; color="#f97316"; label="กำลังยืม"; }
+      if (r.status==="คืนแล้ว")                        { bg="#e8f0fe"; color="#4338ca"; label="คืนแล้ว"; }
+      if (r.status && r.status.indexOf("ไม่อนุมัติ")>-1) { bg="#fdecea"; color="#dc3545"; label="ไม่อนุมัติ"; }
+      return '<tr style="border-top:1px solid #eef0f3;">'
+        + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.id +'</td>'
+        + '<td class="py-2 px-3" style="color:#1a2332;">'+ r.borrowerName +' <span style="color:#8896a9;font-size:11px;">('+r.empId+')</span></td>'
+        + '<td class="py-2 px-3">'+ r.itemName +' <span style="color:#8896a9;font-size:11px;">('+r.spec+')</span></td>'
+        + '<td class="py-2 px-3" style="color:#f97316;font-weight:700;">'+ r.qty +'</td>'
+        + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.borrowDate +'</td>'
+        + '<td class="py-2 px-3"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+color+';margin-right:4px;vertical-align:middle;"></span><span style="font-size:11px;color:'+color+';font-weight:600;">'+ label +'</span></td>'
         + '</tr>';
     }).join("");
   }, null);
