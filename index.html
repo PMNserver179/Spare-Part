@@ -1312,7 +1312,7 @@ h1, h2, h3, .font-semibold, .font-bold {
           </div>
           <div>
             <label class="text-xs" style="color:#8896a9;">ชื่อเครื่องมือ</label>
-            <input type="text" id="tool_itemName" oninput="searchToolItem('name')" class="input" placeholder="พิมพ์ชื่อเครื่องมือ">
+            <input type="text" id="tool_itemName" oninput="searchToolItem()" class="input" placeholder="พิมพ์ชื่อเครื่องมือ">
           </div>
           <div>
             <label class="text-xs" style="color:#8896a9;">Spec</label>
@@ -2733,17 +2733,13 @@ function showToolTab(tab) {
   });
 }
 
-function searchToolItem(type) {
+function searchToolItem() {
   clearTimeout(toolTimer);
   toolTimer = setTimeout(function() {
-    var keyword = type === 'code'
-      ? document.getElementById("tool_itemCode").value.trim()
-      : document.getElementById("tool_itemName").value.trim();
+    var keyword = document.getElementById("tool_itemName").value.trim();
     if (keyword.length < 2) return;
     gasCall("searchToolItem", { keyword: keyword }, function(res) {
       if (!res.items || res.items.length === 0) return;
-      document.getElementById("tool_itemCode").value = res.items[0].code;
-      document.getElementById("tool_itemName").value = res.items[0].name;
 
       var spec = document.getElementById("tool_spec");
       spec.innerHTML = "";
@@ -2751,17 +2747,15 @@ function searchToolItem(type) {
         var opt = document.createElement("option");
         opt.value = i.spec;
         opt.text  = i.spec || "-";
-        // ✅ เก็บ balance ไว้ใน dataset เพื่อใช้ตอน change
         opt.dataset.balance = i.balance;
         spec.appendChild(opt);
       });
 
-      // ✅ แสดง balance ของ spec แรก
       document.getElementById("tool_statusBox").classList.remove("hidden");
       document.getElementById("tool_balanceText").innerText = res.items[0].balance + " ชิ้น";
       document.getElementById("tool_balanceText").style.color = res.items[0].balance > 0 ? '#198754' : '#dc3545';
     }, null);
-  }, 300); // ✅ เปลี่ยนจาก 0 เป็น 300ms
+  }, 300);
 }
 
 function clearToolForm() {
@@ -2775,15 +2769,14 @@ function clearToolForm() {
 
 function saveToolBorrow() {
   var data = {
-    itemCode: document.getElementById("tool_itemCode").value.trim(),
     itemName: document.getElementById("tool_itemName").value.trim(),
     spec:     document.getElementById("tool_spec").value,
     qty:      document.getElementById("tool_qty").value.trim(),
     borrower: document.getElementById("tool_borrower").value.trim(),
     remark:   document.getElementById("tool_remark").value.trim()
   };
-  if (!data.itemCode || !data.qty || Number(data.qty) <= 0) {
-    showModal({ title:"ข้อมูลไม่ครบ", text:"กรุณากรอก Item Code และจำนวน", type:"error" }); return;
+  if (!data.itemName || !data.qty || Number(data.qty) <= 0) {
+    showModal({ title:"ข้อมูลไม่ครบ", text:"กรุณากรอกชื่อเครื่องมือและจำนวน", type:"error" }); return;
   }
   gasCall("saveToolBorrow", { data: JSON.stringify(data) }, function(res) {
     showModal({ title:"ยืมสำเร็จ", text:"รายการยืมถูกส่งรออนุมัติแล้ว", type:"success", autoClose:1800 });
