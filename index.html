@@ -2808,9 +2808,10 @@ function loadMyToolBorrows() {
       if (r.status==="อนุมัติแล้ว") { bg="#e8f5ee"; color="#198754"; }
       if (r.status==="คืนแล้ว")     { bg="#e8f0fe"; color="#4338ca"; }
       if (r.status==="ไม่อนุมัติ")  { bg="#fdecea"; color="#dc3545"; }
-      // ✅ เปลี่ยนข้อความที่แสดง
       var statusText = r.status;
       if (r.status==="อนุมัติแล้ว") statusText = "กำลังยืม";
+      // ✅ เพิ่ม var returnBtn ที่หายไป
+      var returnBtn = (r.status==="อนุมัติแล้ว")
         ? '<button onclick="returnTool(\''+r.id+'\')" style="background:#4338ca;color:white;padding:4px 8px;border-radius:4px;font-size:11px;">คืน</button>'
         : '-';
       return '<tr style="border-top:1px solid #eef0f3;">'
@@ -2818,7 +2819,7 @@ function loadMyToolBorrows() {
         + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">'+ r.itemName +' <span style="color:#8896a9;font-size:11px;">('+r.spec+')</span></td>'
         + '<td class="py-2 px-3" style="color:#f97316;font-weight:700;">'+ r.qty +'</td>'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.borrowDate +'</td>'
-        + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.returnDate +'</td>' // ✅ เพิ่ม
+        + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.returnDate +'</td>'
         + '<td class="py-2 px-3"><span style="padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'+ statusText +'</span></td>'
         + '<td class="py-2 px-3">'+ returnBtn +'</td>'
         + '</tr>';
