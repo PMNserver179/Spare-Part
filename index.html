@@ -1412,31 +1412,29 @@ h1, h2, h3, .font-semibold, .font-bold {
     </div>
 
     <!-- ===== TAB: สถานะ ===== -->
-    <div id="toolTab_status" class="hidden">
-      <div class="bg-white rounded-xl shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <i data-lucide="list" class="w-4 h-4 text-gray-500"></i>
-          <div class="font-medium text-gray-700">สถานะเครื่องมือทั้งหมด</div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr style="border-bottom:2px solid #f97316;">
-                <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">Item Code</th>
-                <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">ชื่อ</th>
-                <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">Spec</th>
-                <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">คงเหลือ</th>
-                <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">ทั้งหมด</th>
-              </tr>
-            </thead>
-            <tbody id="toolStatusTable">
-              <tr><td colspan="5" class="py-4 text-center text-xs" style="color:#8896a9;">กำลังโหลด...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+<div id="toolTab_status" class="hidden">
+  <div class="bg-white rounded-xl shadow-sm p-5">
+    <div class="flex items-center gap-2 mb-4">
+      <i data-lucide="history" class="w-4 h-4 text-gray-500"></i>
+      <div class="font-medium text-gray-700">ประวัติการเบิกเครื่องมือ</div>
     </div>
-
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="border-bottom:2px solid #f97316;">
+            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">ID</th>
+            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">ผู้ยืม</th>
+            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">เครื่องมือ</th>
+            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">จำนวน</th>
+            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">วันที่ยืม</th>
+            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="toolStatusTable">
+          <tr><td colspan="6" class="py-4 text-center text-xs" style="color:#8896a9;">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
