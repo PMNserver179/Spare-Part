@@ -2943,10 +2943,17 @@ function approveTool(id) {
   showModal({ title:"อนุมัติ", text:"ต้องการอนุมัติรายการนี้ใช่ไหม?", type:"confirm",
     onConfirm: function() {
       closeModal();
+
+      // ✅ แสดง loading ทันที
+      var btn = document.querySelector('[onclick="approveTool(\''+id+'\')"]');
+      if (btn) { btn.disabled = true; btn.innerText = "..."; }
+
       gasCall("approveToolBorrow", { txId: id, approverEmail: email }, function(res) {
         showModal({ title:"อนุมัติสำเร็จ", text:"รายการได้รับการอนุมัติแล้ว", type:"success", autoClose:1500 });
+        
+        // ✅ โหลดแค่ approve list ก่อน แล้วค่อย load status ทีหลัง
         loadToolApproveList();
-        loadToolStatus();
+        setTimeout(function() { loadToolStatus(); }, 1000);
       }, function(err) {
         showModal({ title:"เกิดข้อผิดพลาด", text: err.message, type:"error" });
       });
