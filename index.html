@@ -2867,7 +2867,7 @@ function loadToolApproveList() {
 }
 
 function loadToolStatus() {
-  if (!toolIsAdmin) return; // ✅ เฉพาะ Admin
+  if (!toolIsAdmin) return;
   gasCall("getAllToolBorrows", {}, function(res) {
     var rows = res.rows || [];
     if (rows.length === 0) {
@@ -2876,17 +2876,30 @@ function loadToolStatus() {
       return;
     }
     document.getElementById("toolStatusTable").innerHTML = rows.map(function(r) {
-      var bg="#fffbf0", color="#856404", label="รออนุมัติ";
-      if (r.status==="อนุมัติแล้ว")                    { bg="#fff3e0"; color="#f97316"; label="กำลังยืม"; }
-      if (r.status==="คืนแล้ว")                        { bg="#e8f0fe"; color="#4338ca"; label="คืนแล้ว"; }
-      if (r.status && r.status.indexOf("ไม่อนุมัติ")>-1) { bg="#fdecea"; color="#dc3545"; label="ไม่อนุมัติ"; }
+
+      // ✅ pill badge สีพื้นอ่อน ไม่มีจุด
+      var bg, color, label;
+      if (r.status === "คืนแล้ว") {
+        bg = "#ede9fe"; color = "#4338ca"; label = "คืนแล้ว";
+      } else if (r.status && r.status.indexOf("ไม่อนุมัติ") > -1) {
+        bg = "#fdecea"; color = "#dc3545"; label = "ไม่อนุมัติ –";
+      } else if (r.status === "อนุมัติแล้ว") {
+        bg = "#fff7ed"; color = "#ea580c"; label = "กำลังยืม";
+      } else {
+        bg = "#fff7ed"; color = "#ea580c"; label = "รออนุมัติ";
+      }
+
       return '<tr style="border-top:1px solid #eef0f3;">'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.id +'</td>'
         + '<td class="py-2 px-3" style="color:#1a2332;">'+ r.borrowerName +' <span style="color:#8896a9;font-size:11px;">('+r.empId+')</span></td>'
         + '<td class="py-2 px-3">'+ r.itemName +' <span style="color:#8896a9;font-size:11px;">('+r.spec+')</span></td>'
         + '<td class="py-2 px-3" style="color:#f97316;font-weight:700;">'+ r.qty +'</td>'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.borrowDate +'</td>'
-        + '<td class="py-2 px-3"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+color+';margin-right:4px;vertical-align:middle;"></span><span style="font-size:11px;color:'+color+';font-weight:600;">'+ label +'</span></td>'
+        + '<td class="py-2 px-3">'
+        +   '<span style="display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'
+        +     label
+        +   '</span>'
+        + '</td>'
         + '</tr>';
     }).join("");
   }, null);
