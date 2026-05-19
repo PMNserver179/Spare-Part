@@ -2677,6 +2677,11 @@ function renderHistoryTable(rows) {
       + '</tr>';
   }).join("");
 }
+
+// ================= TOOL BORROW =================
+var toolTimer;
+var toolIsAdmin = false;
+var toolRefreshTimer; // ✅ เพิ่มตรงนี้
   
 function showToolBorrow() {
   document.getElementById("menuPage").classList.add("hidden");
