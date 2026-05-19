@@ -2803,23 +2803,36 @@ function loadMyToolBorrows() {
       return;
     }
     document.getElementById("myToolTable").innerHTML = rows.map(function(r) {
-      var bg="#fffbf0", color="#856404";
-      if (r.status==="อนุมัติแล้ว") { bg="#e8f5ee"; color="#198754"; }
-      if (r.status==="คืนแล้ว")     { bg="#e8f0fe"; color="#4338ca"; }
-      if (r.status==="ไม่อนุมัติ")  { bg="#fdecea"; color="#dc3545"; }
-      var statusText = r.status;
-      if (r.status==="อนุมัติแล้ว") statusText = "กำลังยืม";
-      // ✅ เพิ่ม var returnBtn ที่หายไป
-      var returnBtn = (r.status==="อนุมัติแล้ว")
+
+      // ✅ แก้ตรงนี้ให้ตรงกับรูปที่ 2
+      var bg, color, statusText, suffix = "";
+      if (r.status === "คืนแล้ว") {
+        bg = "#ede9fe"; color = "#4338ca"; statusText = "คืนแล้ว";
+      } else if (r.status === "ไม่อนุมัติ") {
+        bg = "#fdecea"; color = "#dc3545"; statusText = "ไม่อนุมัติ"; suffix = " –";
+      } else if (r.status === "อนุมัติแล้ว") {
+        bg = "#dcfce7"; color = "#16a34a"; statusText = "กำลังยืม";
+      } else if (r.status === "รออนุมัติ") {
+        bg = "#fff7ed"; color = "#ea580c"; statusText = "รออนุมัติ";
+      } else {
+        bg = "#f1f5f9"; color = "#64748b"; statusText = r.status;
+      }
+
+      var returnBtn = (r.status === "อนุมัติแล้ว")
         ? '<button onclick="returnTool(\''+r.id+'\')" style="background:#4338ca;color:white;padding:4px 8px;border-radius:4px;font-size:11px;">คืน</button>'
         : '-';
+
       return '<tr style="border-top:1px solid #eef0f3;">'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.id +'</td>'
         + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">'+ r.itemName +' <span style="color:#8896a9;font-size:11px;">('+r.spec+')</span></td>'
         + '<td class="py-2 px-3" style="color:#f97316;font-weight:700;">'+ r.qty +'</td>'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.borrowDate +'</td>'
         + '<td class="py-2 px-3" style="color:#8896a9;font-size:11px;">'+ r.returnDate +'</td>'
-        + '<td class="py-2 px-3"><span style="padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'+ statusText +'</span></td>'
+        + '<td class="py-2 px-3">'
+        +   '<span style="display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;background:'+bg+';color:'+color+';">'
+        +     statusText + suffix
+        +   '</span>'
+        + '</td>'
         + '<td class="py-2 px-3">'+ returnBtn +'</td>'
         + '</tr>';
     }).join("");
