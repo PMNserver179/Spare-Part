@@ -1834,40 +1834,33 @@ function viewReport() {
   statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;background:${bg};color:${color};">● ${lastSavedData.status}</span>`;
 }
 
-// ================= REPORT =================
+//=================== Gan Report ================
 function showReportPage() {
   document.getElementById("menuPage").classList.add("hidden");
   document.getElementById("reportPage").classList.remove("hidden");
   lucide.createIcons();
 
-  // ✅ ไม่ auto generate — แค่เซ็ตวันที่ default ให้ user กด Generate เอง
   var now   = new Date();
   var year  = now.getFullYear();
   var month = now.getMonth();
 
-  var start, end;
-
-  if (now.getDate() >= 20) {
-    // ผ่านวันที่ 20 แล้ว → 20 เดือนนี้ ถึง วันนี้
-    start = new Date(year, month, 20);
-    end   = now;
-  } else {
-    // ยังไม่ถึงวันที่ 20 → 20 เดือนที่แล้ว ถึง 20 เดือนนี้
-    start = new Date(year, month - 1, 20);
-    end   = new Date(year, month, 20);
-  }
-
-  // format YYYY-MM-DD
   function fmt(d) {
     return d.getFullYear() + "-"
       + ("0"+(d.getMonth()+1)).slice(-2) + "-"
       + ("0"+d.getDate()).slice(-2);
   }
 
+  var start, end;
+  if (now.getDate() >= 20) {
+    start = new Date(year, month, 20);
+    end   = now;
+  } else {
+    start = new Date(year, month - 1, 20);
+    end   = new Date(year, month, 20);
+  }
+
   document.getElementById("start").value = fmt(start);
   document.getElementById("end").value   = fmt(end);
-
-  // ✅ ซ่อน summary เก่า (ถ้ามี)
   document.getElementById("summaryArea").classList.add("hidden");
   document.getElementById("resultArea").classList.add("hidden");
 }
@@ -1881,101 +1874,110 @@ function generate() {
   const btn = document.getElementById('btn');
   btn.innerText = "Processing..."; btn.disabled = true;
 
-  google.script.run.withSuccessHandler(function(data) {
-    currentData = data;
-    btn.innerText = "Generate"; btn.disabled = false;
+  // ✅ ซ่อนก่อนทุกครั้ง
+  document.getElementById("summaryArea").classList.add("hidden");
+  document.getElementById("resultArea").classList.add("hidden");
 
-    if (!data.rows || data.rows.length === 0) {
-      showModal({ title:"ไม่พบข้อมูล", text:"ไม่มีข้อมูลในช่วงวันที่เลือก", type:"error" });
-      return;
-    }
+  google.script.run
+    .withSuccessHandler(function(data) {
+      btn.innerText = "Generate"; btn.disabled = false;
+      currentData = data;
 
-    // ✅ คำนวณ Summary
-    var totalIn  = 0;
-    var totalOut = 0;
-    data.rows.forEach(function(row) {
-      var qty = Number(row[3]) || 0;
-      if (row[4] === "IN")  totalIn  += qty;
-      if (row[4] === "OUT") totalOut += qty;
-    });
-    var balance = totalIn - totalOut;
+      if (!data || data.error) {
+        showModal({ title:"Error", text: data ? data.message : "Unknown error", type:"error" }); return;
+      }
+      if (!data.rows || data.rows.length === 0) {
+        showModal({ title:"ไม่พบข้อมูล", text:"ไม่มีข้อมูลในช่วงวันที่เลือก", type:"error" }); return;
+      }
 
-    // ✅ แสดง Summary Cards
-    document.getElementById("summaryArea").classList.remove("hidden");
-    document.getElementById("sumIn").innerText      = totalIn.toLocaleString();
-    document.getElementById("sumOut").innerText     = totalOut.toLocaleString();
-    document.getElementById("sumBalance").innerText = balance.toLocaleString();
-    document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
+      // คำนวณ Summary
+      var totalIn = 0, totalOut = 0;
+      data.rows.forEach(function(row) {
+        var qty = Number(row[3]) || 0;
+        if (row[4] === "IN")  totalIn  += qty;
+        if (row[4] === "OUT") totalOut += qty;
+      });
+      var balance = totalIn - totalOut;
 
-    // ✅ วาด Donut Chart
-    drawDonut(totalIn, totalOut);
+      // แสดง Summary
+      document.getElementById("summaryArea").classList.remove("hidden");
+      document.getElementById("sumIn").innerText          = totalIn.toLocaleString();
+      document.getElementById("sumOut").innerText         = totalOut.toLocaleString();
+      document.getElementById("sumBalance").innerText     = balance.toLocaleString();
+      document.getElementById("sumBalance").style.color   = balance >= 0 ? "#198754" : "#dc3545";
 
-    // ตาราง
-    document.getElementById("count").innerText = data.rows.length;
-    const head = document.getElementById('tableHead');
-    const body = document.getElementById('tableBody');
-    head.innerHTML = "<tr>" + data.header.map(function(h) {
-      return `<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">${h}</th>`;
-    }).join("") + "</tr>";
-    body.innerHTML = data.rows.map(function(row) {
-      return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
-        row.map(function(cell, i) {
-          if (i === 4) {
-            const isIn = cell === 'IN';
-            const bg     = isIn ? 'rgba(25,135,84,0.08)'  : 'rgba(220,53,69,0.08)';
-            const color  = isIn ? '#198754'                : '#dc3545';
-            const border = isIn ? 'rgba(25,135,84,0.2)'   : 'rgba(220,53,69,0.2)';
-            return `<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:${bg};color:${color};border:1px solid ${border};">${cell}</span></td>`;
-          }
-          return `<td style="padding:10px 16px;font-size:13px;color:#4a5568;">${cell}</td>`;
-        }).join("") + "</tr>";
-    }).join("");
-    document.getElementById('resultArea').classList.remove('hidden');
+      // ✅ วาด Donut หลัง element visible แล้ว
+      setTimeout(function() { drawDonut(totalIn, totalOut); }, 50);
 
-  }).getReportData(start, end, source);
+      // ตาราง
+      document.getElementById("count").innerText = data.rows.length;
+      document.getElementById('tableHead').innerHTML = "<tr>" + data.header.map(function(h) {
+        return '<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">' + h + '</th>';
+      }).join("") + "</tr>";
+      document.getElementById('tableBody').innerHTML = data.rows.map(function(row) {
+        return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
+          row.map(function(cell, i) {
+            if (i === 4) {
+              var isIn   = cell === 'IN';
+              var bg     = isIn ? 'rgba(25,135,84,0.08)'  : 'rgba(220,53,69,0.08)';
+              var color  = isIn ? '#198754'                : '#dc3545';
+              var border = isIn ? 'rgba(25,135,84,0.2)'   : 'rgba(220,53,69,0.2)';
+              return '<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:'+bg+';color:'+color+';border:1px solid '+border+';">'+cell+'</span></td>';
+            }
+            return '<td style="padding:10px 16px;font-size:13px;color:#4a5568;">'+cell+'</td>';
+          }).join("") + "</tr>";
+      }).join("");
+
+      document.getElementById('resultArea').classList.remove('hidden');
+    })
+    .withFailureHandler(function(err) {
+      btn.innerText = "Generate"; btn.disabled = false;
+      showModal({ title:"Error", text: err.message, type:"error" });
+    })
+    .getReportData(start, end, source);
 }
 
-// ✅ วาด Donut Chart
 function drawDonut(totalIn, totalOut) {
   var canvas = document.getElementById("donutChart");
   if (!canvas) return;
-  var ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  var ctx   = canvas.getContext("2d");
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
 
   var total = totalIn + totalOut;
   if (total === 0) return;
 
-  var cx = canvas.width / 2, cy = canvas.height / 2, r = 70, inner = 45;
+  var cx = w/2, cy = h/2, r = 65, inner = 42;
   var slices = [
     { value: totalIn,  color: "#198754" },
     { value: totalOut, color: "#dc3545" }
   ];
-  var start = -Math.PI / 2;
+  var angle = -Math.PI / 2;
   slices.forEach(function(s) {
-    var angle = (s.value / total) * 2 * Math.PI;
+    if (s.value <= 0) return;
+    var sweep = (s.value / total) * 2 * Math.PI;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.arc(cx, cy, r, angle, angle + sweep);
     ctx.closePath();
     ctx.fillStyle = s.color;
     ctx.fill();
-    start += angle;
+    angle += sweep;
   });
 
-  // วงกลมตรงกลาง (donut hole)
   ctx.beginPath();
   ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
   ctx.fillStyle = "#fff";
   ctx.fill();
 
-  // ข้อความตรงกลาง
-  ctx.fillStyle = "#1a2332";
-  ctx.font = "bold 13px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(total.toLocaleString(), cx, cy - 4);
+  ctx.textAlign    = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle    = "#1a2332";
+  ctx.font         = "bold 14px sans-serif";
+  ctx.fillText(total.toLocaleString(), cx, cy - 7);
   ctx.fillStyle = "#8896a9";
-  ctx.font = "10px sans-serif";
-  ctx.fillText("Total", cx, cy + 12);
+  ctx.font      = "10px sans-serif";
+  ctx.fillText("Total", cx, cy + 10);
 }
 
 function downloadExcel() {
