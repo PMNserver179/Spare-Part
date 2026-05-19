@@ -719,12 +719,6 @@ h1, h2, h3, .font-semibold, .font-bold {
         <h1 class="text-base font-semibold tracking-wide" style="color:#f0d080;">PMN SYSTEM</h1>
         <p class="text-xs" style="color:rgba(255,255,255,0.45);">Stock Report Module</p>
       </div>
-       <!-- <button onclick="backToMenu()" class="px-4 py-1.5 rounded text-sm transition"
-        style="border:1px solid rgba(201,168,76,0.5);color:#f0d080;background:transparent;"
-        onmouseover="this.style.background='rgba(201,168,76,0.12)'"
-        onmouseout="this.style.background='transparent'">
-        ← Back
-      </button> -->
     </div>
   </div>
   <div class="gold-line"></div>
@@ -778,6 +772,42 @@ h1, h2, h3, .font-semibold, .font-bold {
         </div>
       </div>
     </div>
+    <!-- ✅ Summary Cards + Donut -->
+      <div id="summaryArea" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      
+          <!-- IN -->
+          <div class="bg-white border rounded-lg p-4 flex flex-col gap-1" style="border-color:#dde2ea;">
+            <div class="text-xs font-semibold" style="color:#8896a9;">Stock IN</div>
+            <div id="sumIn" class="text-2xl font-bold" style="color:#198754;">0</div>
+            <div class="text-xs" style="color:#8896a9;">รับเข้าทั้งหมด</div>
+          </div>
+      
+          <!-- OUT -->
+          <div class="bg-white border rounded-lg p-4 flex flex-col gap-1" style="border-color:#dde2ea;">
+            <div class="text-xs font-semibold" style="color:#8896a9;">Stock OUT</div>
+            <div id="sumOut" class="text-2xl font-bold" style="color:#dc3545;">0</div>
+            <div class="text-xs" style="color:#8896a9;">จ่ายออกทั้งหมด</div>
+          </div>
+      
+          <!-- Balance -->
+          <div class="bg-white border rounded-lg p-4 flex flex-col gap-1" style="border-color:#dde2ea;">
+            <div class="text-xs font-semibold" style="color:#8896a9;">Balance</div>
+            <div id="sumBalance" class="text-2xl font-bold" style="color:#198754;">0</div>
+            <div class="text-xs" style="color:#8896a9;">คงเหลือสุทธิ</div>
+          </div>
+      
+          <!-- Donut -->
+          <div class="bg-white border rounded-lg p-4 flex flex-col items-center justify-center" style="border-color:#dde2ea;">
+            <canvas id="donutChart" width="160" height="160"></canvas>
+            <div class="flex gap-3 mt-2 text-xs">
+              <span style="color:#198754;">● IN</span>
+              <span style="color:#dc3545;">● OUT</span>
+            </div>
+          </div>
+      
+        </div>
+      </div>
     <div id="resultArea" class="hidden space-y-3">
       <div class="flex justify-between items-center text-sm">
         <div style="color:#4a5568;">Total: <span id="count" class="font-semibold" style="color:#c9a84c;">0</span> records</div>
@@ -1804,40 +1834,133 @@ function viewReport() {
 }
 
 // ================= REPORT =================
+function showReportPage() {
+  document.getElementById("menuPage").classList.add("hidden");
+  document.getElementById("reportPage").classList.remove("hidden");
+  lucide.createIcons();
+
+  // ✅ default วันที่ 20 เดือนนี้ ถึง 20 เดือนหน้า
+  var now   = new Date();
+  var year  = now.getFullYear();
+  var month = now.getMonth();
+
+  var start = new Date(year, month - 1, 20); // 20 เดือนที่แล้ว
+  var end   = new Date(year, month, 20);      // 20 เดือนนี้
+
+  // ถ้าวันนี้ยังไม่ถึงวันที่ 20 ให้เลื่อนย้อนไปอีกรอบ
+  if (now.getDate() < 20) {
+    start = new Date(year, month - 2, 20);
+    end   = new Date(year, month - 1, 20);
+  }
+
+  document.getElementById("start").value = start.toISOString().split("T")[0];
+  document.getElementById("end").value   = end.toISOString().split("T")[0];
+}
+
 function generate() {
   const start  = document.getElementById('start').value;
   const end    = document.getElementById('end').value;
   const source = document.getElementById('sourceFilter').value;
-  // DEBUG — ดูว่าส่งค่าอะไรไป
-  console.log("start:", start, "end:", end, "source:", source);
   if (!start || !end) { showModal({ title:"แจ้งเตือน", text:"กรุณาเลือกวันที่", type:"error" }); return; }
+
   const btn = document.getElementById('btn');
   btn.innerText = "Processing..."; btn.disabled = true;
-  google.script.run.withSuccessHandler(data => {
+
+  google.script.run.withSuccessHandler(function(data) {
     currentData = data;
+    btn.innerText = "Generate"; btn.disabled = false;
+
     if (!data.rows || data.rows.length === 0) {
       showModal({ title:"ไม่พบข้อมูล", text:"ไม่มีข้อมูลในช่วงวันที่เลือก", type:"error" });
-      btn.innerText = "Generate"; btn.disabled = false; return;
+      return;
     }
+
+    // ✅ คำนวณ Summary
+    var totalIn  = 0;
+    var totalOut = 0;
+    data.rows.forEach(function(row) {
+      var qty = Number(row[3]) || 0;
+      if (row[4] === "IN")  totalIn  += qty;
+      if (row[4] === "OUT") totalOut += qty;
+    });
+    var balance = totalIn - totalOut;
+
+    // ✅ แสดง Summary Cards
+    document.getElementById("summaryArea").classList.remove("hidden");
+    document.getElementById("sumIn").innerText      = totalIn.toLocaleString();
+    document.getElementById("sumOut").innerText     = totalOut.toLocaleString();
+    document.getElementById("sumBalance").innerText = balance.toLocaleString();
+    document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
+
+    // ✅ วาด Donut Chart
+    drawDonut(totalIn, totalOut);
+
+    // ตาราง
     document.getElementById("count").innerText = data.rows.length;
     const head = document.getElementById('tableHead');
     const body = document.getElementById('tableBody');
-    head.innerHTML = "<tr>" + data.header.map(h => `<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">${h}</th>`).join("") + "</tr>";
-    body.innerHTML = data.rows.map(row => "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
-      row.map((cell, i) => {
-        if (i === 4) {
-          const isIn = cell === 'IN';
-          const bg = isIn ? 'rgba(25,135,84,0.08)' : 'rgba(220,53,69,0.08)';
-          const color = isIn ? '#198754' : '#dc3545';
-          const border = isIn ? 'rgba(25,135,84,0.2)' : 'rgba(220,53,69,0.2)';
-          return `<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:${bg};color:${color};border:1px solid ${border};">${cell}</span></td>`;
-        }
-        return `<td style="padding:10px 16px;font-size:13px;color:#4a5568;">${cell}</td>`;
-      }).join("") + "</tr>"
-    ).join("");
+    head.innerHTML = "<tr>" + data.header.map(function(h) {
+      return `<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">${h}</th>`;
+    }).join("") + "</tr>";
+    body.innerHTML = data.rows.map(function(row) {
+      return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
+        row.map(function(cell, i) {
+          if (i === 4) {
+            const isIn = cell === 'IN';
+            const bg     = isIn ? 'rgba(25,135,84,0.08)'  : 'rgba(220,53,69,0.08)';
+            const color  = isIn ? '#198754'                : '#dc3545';
+            const border = isIn ? 'rgba(25,135,84,0.2)'   : 'rgba(220,53,69,0.2)';
+            return `<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:${bg};color:${color};border:1px solid ${border};">${cell}</span></td>`;
+          }
+          return `<td style="padding:10px 16px;font-size:13px;color:#4a5568;">${cell}</td>`;
+        }).join("") + "</tr>";
+    }).join("");
     document.getElementById('resultArea').classList.remove('hidden');
-    btn.innerText = "Generate"; btn.disabled = false;
+
   }).getReportData(start, end, source);
+}
+
+// ✅ วาด Donut Chart
+function drawDonut(totalIn, totalOut) {
+  var canvas = document.getElementById("donutChart");
+  if (!canvas) return;
+  var ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  var total = totalIn + totalOut;
+  if (total === 0) return;
+
+  var cx = canvas.width / 2, cy = canvas.height / 2, r = 70, inner = 45;
+  var slices = [
+    { value: totalIn,  color: "#198754" },
+    { value: totalOut, color: "#dc3545" }
+  ];
+  var start = -Math.PI / 2;
+  slices.forEach(function(s) {
+    var angle = (s.value / total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.closePath();
+    ctx.fillStyle = s.color;
+    ctx.fill();
+    start += angle;
+  });
+
+  // วงกลมตรงกลาง (donut hole)
+  ctx.beginPath();
+  ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+
+  // ข้อความตรงกลาง
+  ctx.fillStyle = "#1a2332";
+  ctx.font = "bold 13px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(total.toLocaleString(), cx, cy - 4);
+  ctx.fillStyle = "#8896a9";
+  ctx.font = "10px sans-serif";
+  ctx.fillText("Total", cx, cy + 12);
 }
 
 function downloadExcel() {
