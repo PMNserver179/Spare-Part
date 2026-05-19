@@ -1840,22 +1840,36 @@ function showReportPage() {
   document.getElementById("reportPage").classList.remove("hidden");
   lucide.createIcons();
 
-  // ✅ default วันที่ 20 เดือนนี้ ถึง 20 เดือนหน้า
+  // ✅ ไม่ auto generate — แค่เซ็ตวันที่ default ให้ user กด Generate เอง
   var now   = new Date();
   var year  = now.getFullYear();
   var month = now.getMonth();
 
-  var start = new Date(year, month - 1, 20); // 20 เดือนที่แล้ว
-  var end   = new Date(year, month, 20);      // 20 เดือนนี้
+  var start, end;
 
-  // ถ้าวันนี้ยังไม่ถึงวันที่ 20 ให้เลื่อนย้อนไปอีกรอบ
-  if (now.getDate() < 20) {
-    start = new Date(year, month - 2, 20);
-    end   = new Date(year, month - 1, 20);
+  if (now.getDate() >= 20) {
+    // ผ่านวันที่ 20 แล้ว → 20 เดือนนี้ ถึง วันนี้
+    start = new Date(year, month, 20);
+    end   = now;
+  } else {
+    // ยังไม่ถึงวันที่ 20 → 20 เดือนที่แล้ว ถึง 20 เดือนนี้
+    start = new Date(year, month - 1, 20);
+    end   = new Date(year, month, 20);
   }
 
-  document.getElementById("start").value = start.toISOString().split("T")[0];
-  document.getElementById("end").value   = end.toISOString().split("T")[0];
+  // format YYYY-MM-DD
+  function fmt(d) {
+    return d.getFullYear() + "-"
+      + ("0"+(d.getMonth()+1)).slice(-2) + "-"
+      + ("0"+d.getDate()).slice(-2);
+  }
+
+  document.getElementById("start").value = fmt(start);
+  document.getElementById("end").value   = fmt(end);
+
+  // ✅ ซ่อน summary เก่า (ถ้ามี)
+  document.getElementById("summaryArea").classList.add("hidden");
+  document.getElementById("resultArea").classList.add("hidden");
 }
 
 function generate() {
