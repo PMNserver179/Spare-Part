@@ -2718,7 +2718,7 @@ function showToolBorrow() {
     loadMyToolBorrows();
     loadToolStatus();
     if (toolIsAdmin) loadToolApproveList();
-  }, 20000);
+  }, 5000);
 }
 
 function showToolTab(tab) {
@@ -2759,7 +2759,7 @@ function searchToolItem() {
       // ✅ แสดง balance จาก spec แรก
       updateToolBalance();
     }, null);
-  }, 300);
+  }, 150);
 }
   
 function updateToolBalance() {
