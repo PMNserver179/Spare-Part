@@ -525,12 +525,6 @@ h1, h2, h3, .font-semibold, .font-bold {
         <h1 class="text-base font-semibold tracking-wide" style="color:#f0d080;">PMN SYSTEM</h1> 
         <p class="text-xs" style="color:rgba(255,255,255,0.45);">Stock Input Module</p>
       </div>
-      <!-- <button onclick="backToMenu()" class="px-4 py-1.5 rounded text-sm transition"
-      style="border:1px solid rgba(201,168,76,0.5);color:#f0d080;background:transparent;"
-      onmouseover="this.style.background='rgba(201,168,76,0.12)'"
-      onmouseout="this.style.background='transparent'">
-      ← Back
-    </button> -->
     </div>
   </div>
   <div class="gold-line"></div>
@@ -1264,30 +1258,35 @@ h1, h2, h3, .font-semibold, .font-bold {
           <div class="topbar-title">PMN SYSTEM</div>
           <div class="topbar-sub">Tool Borrow Module</div>
         </div>
-        <button onclick="backToMenu()" class="topbar-btn" style="display:flex;align-items:center;gap:6px;">
-          <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back
-        </button>
-      </div>
-      <!-- Tab Admin -->
-      <div id="toolAdminTab" class="hidden" style="display:none;">
-        <button onclick="showToolTab('borrow')" id="tTab_borrow"
-          class="topbar-btn" style="background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.5);color:#fdba74;">
-          ยืม/คืน
-        </button>
-        <button onclick="showToolTab('approve')" id="tTab_approve"
-          class="topbar-btn ml-2">
-          อนุมัติ
-        </button>
-        <button onclick="showToolTab('status')" id="tTab_status"
-          class="topbar-btn ml-2">
-          สถานะ
-        </button>
       </div>
     </div>
   </div>
   <div class="gold-line"></div>
 
   <div class="max-w-6xl mx-auto p-6 space-y-5">
+    <button onclick="backToMenu()" class="px-4 py-1.5 rounded text-sm transition"
+          style="border:1px solid #E8D174;color:#DEB407;background:transparent;display:flex;align-items:center;gap:6px;"
+          onmouseover="this.style.background='rgba(201,168,76,0.12)'"
+          onmouseout="this.style.background='transparent'">
+          <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back
+        </button>
+    <!-- Tab Admin -->
+        <div id="toolAdminTab" class="hidden" style="display:none;">
+            <button onclick="showToolTab('borrow')" id="tTab_borrow"
+              class="topbar-btn" style="background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.5);color:#fdba74;">
+              ยืม/คืน
+            </button>
+            <button onclick="showToolTab('approve')" id="tTab_approve"
+              class="topbar-btn ml-2">
+              อนุมัติ
+            </button>
+            <button onclick="showToolTab('status')" id="tTab_status"
+              class="topbar-btn ml-2">
+              สถานะ
+            </button>
+          </div>
+        </div>
+      </div>
 
     <!-- ===== TAB: ยืม/คืน ===== -->
     <div id="toolTab_borrow">
