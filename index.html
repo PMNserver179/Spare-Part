@@ -2677,11 +2677,7 @@ function renderHistoryTable(rows) {
       + '</tr>';
   }).join("");
 }
-// ================= TOOL BORROW =================
-var toolTimer;
-var toolIsAdmin = false;
-var toolRefreshTimer; // ✅ เพิ่มตรงนี้
-
+  
 function showToolBorrow() {
   document.getElementById("menuPage").classList.add("hidden");
   document.getElementById("toolBorrowPage").classList.remove("hidden");
@@ -2698,17 +2694,18 @@ function showToolBorrow() {
     }
     loadMyToolBorrows();
     if (toolIsAdmin) loadToolApproveList();
-    loadToolStatus(); // ✅ ย้ายมาในนี้ เพื่อให้รู้ว่าเป็น Admin ก่อน
+    loadToolStatus();
   }, null);
 
   showToolTab('borrow');
 
+  // ✅ แทนที่ event listener เดิมทั้งหมดด้วยอันนี้
   document.getElementById("tool_spec").addEventListener("change", function() {
-    var selected = this.options[this.selectedIndex];
-    var bal = selected ? Number(selected.dataset.balance) : 0;
-    document.getElementById("tool_statusBox").classList.remove("hidden");
-    document.getElementById("tool_balanceText").innerText = bal + " ชิ้น";
-    document.getElementById("tool_balanceText").style.color = bal > 0 ? '#198754' : '#dc3545';
+    updateToolBalance();
+  });
+
+  document.getElementById("tool_qty").addEventListener("input", function() {
+    updateToolBalance();
   });
 
   clearInterval(toolRefreshTimer);
