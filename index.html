@@ -2746,18 +2746,42 @@ function searchToolItem() {
       if (!res.items || res.items.length === 0) return;
       var spec = document.getElementById("tool_spec");
       spec.innerHTML = "";
-      res.items.forEach(function(i) {
+      res.items.forEach(function(item) {
         var opt = document.createElement("option");
-        opt.value = i.spec;
-        opt.text  = i.spec || "-";
-        opt.dataset.balance = i.balance;
+        opt.value = item.spec;
+        opt.text  = item.spec || "-";
+        opt.dataset.balance = item.balance;
         spec.appendChild(opt);
       });
-      document.getElementById("tool_statusBox").classList.remove("hidden");
-      document.getElementById("tool_balanceText").innerText = res.items[0].balance + " ชิ้น";
-      document.getElementById("tool_balanceText").style.color = res.items[0].balance > 0 ? '#198754' : '#dc3545';
+
+      // ✅ แสดง balance จาก spec แรก
+      updateToolBalance();
     }, null);
   }, 300);
+}
+  
+function updateToolBalance() {
+  var spec = document.getElementById("tool_spec");
+  var selected = spec.options[spec.selectedIndex];
+  var bal = selected ? Number(selected.dataset.balance) : 0;
+  var qty = Number(document.getElementById("tool_qty").value) || 1;
+
+  document.getElementById("tool_statusBox").classList.remove("hidden");
+
+  if (bal <= 0) {
+    // ✅ มีคนกำลังยืม — เบิกไม่ได้
+    document.getElementById("tool_balanceText").innerHTML =
+      '<span style="color:#dc3545;font-weight:700;">0 ชิ้น</span>'
+      + ' <span style="color:#dc3545;font-size:11px;">⚠ มีคนกำลังยืมอยู่</span>';
+  } else if (qty > bal) {
+    // ✅ จำนวนที่ขอเกิน balance
+    document.getElementById("tool_balanceText").innerHTML =
+      '<span style="color:#f97316;font-weight:700;">'+ bal +' ชิ้น</span>'
+      + ' <span style="color:#f97316;font-size:11px;">⚠ จำนวนเกินที่มีในคลัง</span>';
+  } else {
+    document.getElementById("tool_balanceText").innerHTML =
+      '<span style="color:#198754;font-weight:700;">'+ bal +' ชิ้น</span>';
+  }
 }
 
 function clearToolForm() {
@@ -2769,17 +2793,27 @@ function clearToolForm() {
 }
 
 function saveToolBorrow() {
-  var data = {
-    itemName: document.getElementById("tool_itemName").value.trim(),
-    spec:     document.getElementById("tool_spec").value,
-    qty:      document.getElementById("tool_qty").value.trim(),
-    borrower: document.getElementById("tool_borrower").value.trim(),
-    remark:   document.getElementById("tool_remark").value.trim()
-  };
-  if (!data.itemName || !data.qty || Number(data.qty) <= 0) {
+  var itemName = document.getElementById("tool_itemName").value.trim();
+  var spec     = document.getElementById("tool_spec");
+  var selected = spec.options[spec.selectedIndex];
+  var bal      = selected ? Number(selected.dataset.balance) : 0;
+  var qty      = Number(document.getElementById("tool_qty").value.trim());
+  var borrower = document.getElementById("tool_borrower").value.trim();
+  var remark   = document.getElementById("tool_remark").value.trim();
+
+  if (!itemName || !qty || qty <= 0) {
     showModal({ title:"ข้อมูลไม่ครบ", text:"กรุณากรอกชื่อเครื่องมือและจำนวน", type:"error" }); return;
   }
-  gasCall("saveToolBorrow", { data: JSON.stringify(data) }, function(res) {
+
+  // ✅ เช็ค balance ก่อนบันทึก
+  if (bal <= 0) {
+    showModal({ title:"ไม่สามารถยืมได้", text:"ขณะนี้มีคนกำลังยืมอยู่ ไม่มีในคลัง", type:"error" }); return;
+  }
+  if (qty > bal) {
+    showModal({ title:"จำนวนเกิน", text:"คงเหลือในคลังมีเพียง " + bal + " ชิ้น", type:"error" }); return;
+  }
+
+  gasCall("saveToolBorrow", { data: JSON.stringify({ itemName, spec: spec.value, qty, borrower, remark }) }, function(res) {
     showModal({ title:"ยืมสำเร็จ", text:"รายการยืมถูกส่งรออนุมัติแล้ว", type:"success", autoClose:1800 });
     clearToolForm();
     loadMyToolBorrows();
