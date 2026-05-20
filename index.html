@@ -2608,12 +2608,55 @@
         }
 
         function downloadExcel() {
-          if (!currentData) return;
-          const ws = XLSX.utils.aoa_to_sheet([currentData.header, ...currentData.rows]);
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "StockData");
-          XLSX.writeFile(wb, "Stock_Report.xlsx");
-        }
+            if (!currentData) return;
+
+            // ✅ Summary rows
+            var sumIn = document.getElementById("sumIn").innerText;
+            var sumOut = document.getElementById("sumOut").innerText;
+            var sumBalance = document.getElementById("sumBalance").innerText;
+
+            var summaryRows = [
+              ["STOCK REPORT SUMMARY"],
+              [],
+              ["Stock IN", sumIn],
+              ["Stock OUT", sumOut],
+              ["Balance", sumBalance],
+              [],
+              ["─────────────────────────────────────"],
+              []
+            ];
+
+            // ✅ รวม summary + header + data
+            var allRows = [
+              ...summaryRows,
+              currentData.header,
+              ...currentData.rows
+            ];
+
+            var ws = XLSX.utils.aoa_to_sheet(allRows);
+
+            // ✅ ปรับความกว้างคอลัมน์
+            ws['!cols'] = [
+              { wch: 20 },
+              { wch: 25 },
+              { wch: 20 },
+              { wch: 10 },
+              { wch: 10 },
+              { wch: 15 }
+            ];
+
+            // ✅ style หัวข้อ (ถ้า SheetJS Pro รองรับ — ถ้าไม่รองรับก็ไม่ error)
+            if (ws['A1']) {
+              ws['A1'].s = {
+                font: { bold: true, sz: 14, color: { rgb: "0f1b2d" } },
+                fill: { fgColor: { rgb: "f0d080" } }
+              };
+            }
+
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
+            XLSX.writeFile(wb, "Stock_Report.xlsx");
+          }
 
         // ================= EMPLOYEE =================
         function fetchEmpName() {
