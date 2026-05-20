@@ -2299,31 +2299,27 @@
         }
 
         function generate() {
-          const start = document.getElementById('start').value;
-          const end = document.getElementById('end').value;
-          const source = document.getElementById('sourceFilter').value;
-          if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
+            var start = document.getElementById('start').value;
+            var end = document.getElementById('end').value;
+            var source = document.getElementById('sourceFilter').value;
+            if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
 
-          const btn = document.getElementById('btn');
-          btn.innerText = "Processing..."; btn.disabled = true;
+            var btn = document.getElementById('btn');
+            btn.innerText = "Processing..."; btn.disabled = true;
 
-          // ✅ ซ่อนก่อนทุกครั้ง
-          document.getElementById("summaryArea").classList.add("hidden");
-          document.getElementById("resultArea").classList.add("hidden");
+            // ซ่อนก่อน
+            document.getElementById("summaryArea").classList.add("hidden");
+            document.getElementById("resultArea").classList.add("hidden");
 
-          google.script.run
-            .withSuccessHandler(function (data) {
-              btn.innerText = "Generate"; btn.disabled = false;
+            gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function (data) {
               currentData = data;
+              btn.innerText = "Generate"; btn.disabled = false;
 
-              if (!data || data.error) {
-                showModal({ title: "Error", text: data ? data.message : "Unknown error", type: "error" }); return;
-              }
               if (!data.rows || data.rows.length === 0) {
                 showModal({ title: "ไม่พบข้อมูล", text: "ไม่มีข้อมูลในช่วงวันที่เลือก", type: "error" }); return;
               }
 
-              // คำนวณ Summary
+              // ✅ คำนวณ Summary
               var totalIn = 0, totalOut = 0;
               data.rows.forEach(function (row) {
                 var qty = Number(row[3]) || 0;
@@ -2332,23 +2328,20 @@
               });
               var balance = totalIn - totalOut;
 
-              // แสดง Summary
+              // ✅ แสดง Summary
               document.getElementById("summaryArea").classList.remove("hidden");
-              alert("totalIn=" + totalIn + " totalOut=" + totalOut); // ← เพิ่มบรรทัดนี้
               document.getElementById("sumIn").innerText = totalIn.toLocaleString();
               document.getElementById("sumOut").innerText = totalOut.toLocaleString();
               document.getElementById("sumBalance").innerText = balance.toLocaleString();
               document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
 
-              // ✅ วาด Donut หลัง element visible แล้ว
-              // ✅ รอ browser repaint จริงๆ ก่อนวาด
+              // ✅ วาด Donut
               requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
-                  // เพิ่มบรรทัดนี้ชั่วคราว
-                  console.log("canvas w:", c.width, "h:", c.height, "totalIn:", totalIn, "totalOut:", totalOut);
                   drawDonut(totalIn, totalOut);
                 });
               });
+
               // ตาราง
               document.getElementById("count").innerText = data.rows.length;
               document.getElementById('tableHead').innerHTML = "<tr>" + data.header.map(function (h) {
@@ -2369,14 +2362,12 @@
               }).join("");
 
               document.getElementById('resultArea').classList.remove('hidden');
-            })
-            .withFailureHandler(function (err) {
-              btn.innerText = "Generate"; btn.disabled = false;
-              showModal({ title: "Error", text: err.message, type: "error" });
-            })
-            .getReportData(start, end, source);
-        }
 
+            }, function (err) {
+              showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
+              btn.innerText = "Generate"; btn.disabled = false;
+            });
+          }
         function drawDonut(totalIn, totalOut) {
           var canvas = document.getElementById("donutChart");
           if (!canvas) return;
@@ -3174,47 +3165,6 @@
           }, function (err) {
             showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
             btn.innerText = "Save Transaction"; btn.disabled = false;
-          });
-        }
-
-        // --- Generate Report ---
-        function generate() {
-          var start = document.getElementById('start').value;
-          var end = document.getElementById('end').value;
-          var source = document.getElementById('sourceFilter').value;
-          if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
-          var btn = document.getElementById('btn');
-          btn.innerText = "Processing..."; btn.disabled = true;
-          gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function (data) {
-            currentData = data;
-            if (!data.rows || data.rows.length === 0) {
-              showModal({ title: "ไม่พบข้อมูล", text: "ไม่มีข้อมูลในช่วงวันที่เลือก", type: "error" });
-              btn.innerText = "Generate"; btn.disabled = false; return;
-            }
-            document.getElementById("count").innerText = data.rows.length;
-            var head = document.getElementById('tableHead');
-            var body = document.getElementById('tableBody');
-            head.innerHTML = "<tr>" + data.header.map(function (h) {
-              return '<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">' + h + '</th>';
-            }).join("") + "</tr>";
-            body.innerHTML = data.rows.map(function (row) {
-              return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
-                row.map(function (cell, i) {
-                  if (i === 4) {
-                    var isIn = cell === 'IN';
-                    var bg = isIn ? 'rgba(25,135,84,0.08)' : 'rgba(220,53,69,0.08)';
-                    var color = isIn ? '#198754' : '#dc3545';
-                    var border = isIn ? 'rgba(25,135,84,0.2)' : 'rgba(220,53,69,0.2)';
-                    return '<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';">' + cell + '</span></td>';
-                  }
-                  return '<td style="padding:10px 16px;font-size:13px;color:#4a5568;">' + cell + '</td>';
-                }).join("") + "</tr>";
-            }).join("");
-            document.getElementById('resultArea').classList.remove('hidden');
-            btn.innerText = "Generate"; btn.disabled = false;
-          }, function (err) {
-            showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
-            btn.innerText = "Generate"; btn.disabled = false;
           });
         }
 
