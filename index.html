@@ -2560,9 +2560,10 @@
 
           // ===== รูกลาง (donut hole) =====
           // เงารู
-          var holeGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, inner);
+          var holeGrad = ctx.createRadialGradient(cx - 8, cy - 8, 2, cx, cy, inner);
           holeGrad.addColorStop(0, "#ffffff");
-          holeGrad.addColorStop(0.6, "#f4f6f8");
+          holeGrad.addColorStop(0.4, "#f0faf4");  // เขียวอ่อนมาก
+          holeGrad.addColorStop(0.75, "#fef0f0"); // แดงอ่อนมาก
           holeGrad.addColorStop(1, "#e8eaed");
           ctx.beginPath();
           ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
