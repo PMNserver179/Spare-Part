@@ -2405,9 +2405,6 @@
               document.getElementById("sumOut").innerText = totalOut.toLocaleString();
               document.getElementById("sumBalance").innerText = balance.toLocaleString();
               document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
-              var total = totalIn + totalOut;
-              document.getElementById("barIn").style.width = total > 0 ? (totalIn / total * 100) + "%" : "0%";
-              document.getElementById("barOut").style.width = total > 0 ? (totalOut / total * 100) + "%" : "0%";
 
               // ✅ วาด Donut
               requestAnimationFrame(function () {
