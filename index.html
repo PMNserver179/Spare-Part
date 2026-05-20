@@ -2489,37 +2489,121 @@
           var total = totalIn + totalOut;
           if (total === 0) return;
 
-          var cx = w / 2, cy = h / 2, r = 65, inner = 42;
+          var cx = w / 2, cy = h / 2, r = 58, inner = 36;
           var slices = [
-            { value: totalIn, color: "#198754" },
-            { value: totalOut, color: "#dc3545" }
+            { value: totalIn, color1: "#1db954", color2: "#0a7a32" },
+            { value: totalOut, color1: "#ff4d6d", color2: "#9b1a2a" }
           ];
+
           var angle = -Math.PI / 2;
+
+          // ===== วาดเงา 3D ด้านล่าง =====
           slices.forEach(function (s) {
             if (s.value <= 0) return;
             var sweep = (s.value / total) * 2 * Math.PI;
+            // เงา offset ลงด้านล่าง
+            for (var i = 6; i >= 1; i--) {
+              ctx.beginPath();
+              ctx.moveTo(cx, cy + i);
+              ctx.arc(cx, cy + i, r, angle, angle + sweep);
+              ctx.closePath();
+              ctx.fillStyle = "rgba(0,0,0," + (0.04 * i) + ")";
+              ctx.fill();
+            }
+            angle += sweep;
+          });
+
+          // ===== วาด slice หลัก + gradient =====
+          angle = -Math.PI / 2;
+          slices.forEach(function (s) {
+            if (s.value <= 0) return;
+            var sweep = (s.value / total) * 2 * Math.PI;
+            var midAngle = angle + sweep / 2;
+
+            // gradient แต่ละ slice
+            var gx1 = cx + Math.cos(midAngle - 0.5) * r * 0.3;
+            var gy1 = cy + Math.sin(midAngle - 0.5) * r * 0.3;
+            var gx2 = cx + Math.cos(midAngle) * r;
+            var gy2 = cy + Math.sin(midAngle) * r;
+            var grad = ctx.createLinearGradient(gx1, gy1, gx2, gy2);
+            grad.addColorStop(0, s.color1);
+            grad.addColorStop(1, s.color2);
+
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.arc(cx, cy, r, angle, angle + sweep);
             ctx.closePath();
-            ctx.fillStyle = s.color;
+            ctx.fillStyle = grad;
             ctx.fill();
+
+            // ขอบแสงสว่างด้านบน
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r, angle, angle + sweep);
+            ctx.closePath();
+            ctx.strokeStyle = "rgba(255,255,255,0.25)";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
             angle += sweep;
           });
 
+          // ===== Highlight โค้งบนสุด =====
+          var hlGrad = ctx.createRadialGradient(cx - 10, cy - 15, 2, cx, cy, r);
+          hlGrad.addColorStop(0, "rgba(255,255,255,0.22)");
+          hlGrad.addColorStop(0.5, "rgba(255,255,255,0.05)");
+          hlGrad.addColorStop(1, "rgba(255,255,255,0)");
           ctx.beginPath();
-          ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
-          ctx.fillStyle = "#fff";
+          ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+          ctx.fillStyle = hlGrad;
           ctx.fill();
 
+          // ===== รูกลาง (donut hole) =====
+          // เงารู
+          var holeGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, inner);
+          holeGrad.addColorStop(0, "#ffffff");
+          holeGrad.addColorStop(0.6, "#f4f6f8");
+          holeGrad.addColorStop(1, "#e8eaed");
+          ctx.beginPath();
+          ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+          ctx.fillStyle = holeGrad;
+          ctx.fill();
+
+          // ขอบรูด้านใน
+          ctx.beginPath();
+          ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+          ctx.strokeStyle = "rgba(0,0,0,0.08)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // แสงรูกลาง
+          var innerHL = ctx.createRadialGradient(cx - 8, cy - 8, 1, cx, cy, inner * 0.7);
+          innerHL.addColorStop(0, "rgba(255,255,255,0.9)");
+          innerHL.addColorStop(1, "rgba(255,255,255,0)");
+          ctx.beginPath();
+          ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+          ctx.fillStyle = innerHL;
+          ctx.fill();
+
+          // ===== ตัวเลขกลาง =====
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
+
+          // เงาตัวเลข
+          ctx.shadowColor = "rgba(0,0,0,0.15)";
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetY = 2;
+
           ctx.fillStyle = "#1a2332";
-          ctx.font = "bold 14px sans-serif";
+          ctx.font = "bold 16px sans-serif";
           ctx.fillText(total.toLocaleString(), cx, cy - 7);
+
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+
           ctx.fillStyle = "#8896a9";
           ctx.font = "10px sans-serif";
-          ctx.fillText("Total", cx, cy + 10);
+          ctx.fillText("Total", cx, cy + 9);
         }
 
         function downloadExcel() {
