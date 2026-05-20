@@ -2340,8 +2340,12 @@
               document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
 
               // ✅ วาด Donut หลัง element visible แล้ว
-              setTimeout(function () { drawDonut(totalIn, totalOut); }, 50);
-
+              // ✅ รอ browser repaint จริงๆ ก่อนวาด
+              requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                  drawDonut(totalIn, totalOut);
+                });
+              });
               // ตาราง
               document.getElementById("count").innerText = data.rows.length;
               document.getElementById('tableHead').innerHTML = "<tr>" + data.header.map(function (h) {
