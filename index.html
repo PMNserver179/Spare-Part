@@ -2343,6 +2343,8 @@
               // ✅ รอ browser repaint จริงๆ ก่อนวาด
               requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
+                  // เพิ่มบรรทัดนี้ชั่วคราว
+                  console.log("canvas w:", c.width, "h:", c.height, "totalIn:", totalIn, "totalOut:", totalOut);
                   drawDonut(totalIn, totalOut);
                 });
               });
