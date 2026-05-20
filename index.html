@@ -2269,34 +2269,38 @@
 
         //=================== Gan Report ================
         function showReportPage() {
-          document.getElementById("menuPage").classList.add("hidden");
-          document.getElementById("reportPage").classList.remove("hidden");
-          lucide.createIcons();
+            document.getElementById("menuPage").classList.add("hidden");
+            document.getElementById("reportPage").classList.remove("hidden");
+            lucide.createIcons();
 
-          var now = new Date();
-          var year = now.getFullYear();
-          var month = now.getMonth();
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = now.getMonth();
+            var day = now.getDate();
 
-          function fmt(d) {
-            return d.getFullYear() + "-"
-              + ("0" + (d.getMonth() + 1)).slice(-2) + "-"
-              + ("0" + d.getDate()).slice(-2);
+            function fmt(d) {
+              return d.getFullYear() + "-"
+                + ("0" + (d.getMonth() + 1)).slice(-2) + "-"
+                + ("0" + d.getDate()).slice(-2);
+            }
+
+            var start, end;
+
+            if (day >= 20) {
+              // อยู่ในรอบ 20 เดือนนี้ → 20/เดือนนี้ ถึง วันนี้
+              start = new Date(year, month, 20);
+              end = now;
+            } else {
+              // ยังไม่ถึง 20 → 20/เดือนก่อน ถึง 19/เดือนนี้
+              start = new Date(year, month - 1, 20);
+              end = new Date(year, month, 19);
+            }
+
+            document.getElementById("start").value = fmt(start);
+            document.getElementById("end").value = fmt(end);
+            document.getElementById("summaryArea").classList.add("hidden");
+            document.getElementById("resultArea").classList.add("hidden");
           }
-
-          var start, end;
-          if (now.getDate() >= 20) {
-            start = new Date(year, month, 20);
-            end = now;
-          } else {
-            start = new Date(year, month - 1, 20);
-            end = new Date(year, month, 20);
-          }
-
-          document.getElementById("start").value = fmt(start);
-          document.getElementById("end").value = fmt(end);
-          document.getElementById("summaryArea").classList.add("hidden");
-          document.getElementById("resultArea").classList.add("hidden");
-        }
 
         function generate() {
             var start = document.getElementById('start').value;
