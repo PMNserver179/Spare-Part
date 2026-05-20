@@ -2334,6 +2334,7 @@
 
               // แสดง Summary
               document.getElementById("summaryArea").classList.remove("hidden");
+              alert("totalIn=" + totalIn + " totalOut=" + totalOut); // ← เพิ่มบรรทัดนี้
               document.getElementById("sumIn").innerText = totalIn.toLocaleString();
               document.getElementById("sumOut").innerText = totalOut.toLocaleString();
               document.getElementById("sumBalance").innerText = balance.toLocaleString();
