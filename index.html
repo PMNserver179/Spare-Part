@@ -1053,20 +1053,20 @@
       </div>
     </div>
     <div class="gold-line"></div>
-  
+
     <div class="max-w-7xl mx-auto p-6 space-y-6">
-  
+
       <button onclick="backToMenu()" class="px-4 py-1.5 rounded text-sm transition"
         style="border:1px solid #E8D174;color:#DEB407;background:transparent;display:flex;align-items:center;gap:6px;"
         onmouseover="this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.background='transparent'">
         <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back
       </button>
-  
+
       <div class="border-b pb-3" style="border-color:#dde2ea;">
         <h2 class="text-lg font-semibold" style="color:#1a2332;">Stock Report</h2>
         <p class="text-xs" style="color:#8896a9;">Inventory transaction history</p>
       </div>
-  
+
       <!-- Filter -->
       <div class="bg-white border rounded-lg p-5" style="border-color:#dde2ea;">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1101,11 +1101,11 @@
           </div>
         </div>
       </div>
-  
+
       <!-- ✅ Summary Cards + Donut -->
       <div id="summaryArea" class="hidden">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-  
+
           <!-- IN -->
           <div class="bg-white border rounded-xl p-5 flex flex-col gap-2" style="
             border-color:#dde2ea;
@@ -1125,7 +1125,8 @@
                 </svg>
               </div>
             </div>
-            <div id="sumIn" class="text-3xl font-bold" style="color:#198754;text-shadow:0 2px 8px rgba(25,135,84,0.2);">0
+            <div id="sumIn" class="text-3xl font-bold" style="color:#198754;text-shadow:0 2px 8px rgba(25,135,84,0.2);">
+              0
             </div>
             <div class="text-xs" style="color:#8896a9;">รับเข้าทั้งหมด</div>
             <div style="height:4px;border-radius:4px;background:rgba(25,135,84,0.1);">
@@ -1133,7 +1134,7 @@
                 background:linear-gradient(90deg,#198754,#2ecc71);box-shadow:0 0 8px rgba(25,135,84,0.5);"></div>
             </div>
           </div>
-  
+
           <!-- OUT -->
           <div class="bg-white border rounded-xl p-5 flex flex-col gap-2" style="
             border-color:#dde2ea;
@@ -1153,7 +1154,8 @@
                 </svg>
               </div>
             </div>
-            <div id="sumOut" class="text-3xl font-bold" style="color:#dc3545;text-shadow:0 2px 8px rgba(220,53,69,0.2);">0
+            <div id="sumOut" class="text-3xl font-bold"
+              style="color:#dc3545;text-shadow:0 2px 8px rgba(220,53,69,0.2);">0
             </div>
             <div class="text-xs" style="color:#8896a9;">จ่ายออกทั้งหมด</div>
             <div style="height:4px;border-radius:4px;background:rgba(220,53,69,0.1);">
@@ -1161,7 +1163,7 @@
                 background:linear-gradient(90deg,#dc3545,#ff6b6b);box-shadow:0 0 8px rgba(220,53,69,0.5);"></div>
             </div>
           </div>
-  
+
           <!-- Balance -->
           <div class="bg-white border rounded-xl p-5 flex flex-col gap-2" style="
             border-color:#dde2ea;
@@ -1189,7 +1191,7 @@
                 background:linear-gradient(90deg,#c9a84c,#f0d080);box-shadow:0 0 8px rgba(201,168,76,0.6);"></div>
             </div>
           </div>
-  
+
           <!-- Donut -->
           <div class="bg-white border rounded-xl p-5 flex flex-col items-center justify-center gap-2" style="
             border-color:#dde2ea;
@@ -1215,11 +1217,11 @@
               </span>
             </div>
           </div>
-  
+
         </div>
       </div>
       <!-- ✅ ปิด summaryArea -->
-  
+
       <!-- ✅ Result Table -->
       <div id="resultArea" class="hidden space-y-3">
         <div class="flex justify-between items-center text-sm">
@@ -1239,10 +1241,10 @@
         </div>
       </div>
       <!-- ✅ ปิด resultArea -->
-  
+
     </div>
     <!-- ✅ ปิด max-w-7xl -->
-  
+
   </div>
   <!-- ✅ ปิด reportPage -->
 
@@ -2361,24 +2363,24 @@
 
         //=================== Gan Report ================
         function showReportPage() {
-            document.getElementById("menuPage").classList.add("hidden");
-            document.getElementById("reportPage").classList.remove("hidden");
-            lucide.createIcons();
+          document.getElementById("menuPage").classList.add("hidden");
+          document.getElementById("reportPage").classList.remove("hidden");
+          lucide.createIcons();
 
-            var now = new Date();
-            var year = now.getFullYear();
-            var month = now.getMonth();
-            var day = now.getDate();
+          var now = new Date();
+          var year = now.getFullYear();
+          var month = now.getMonth();
+          var day = now.getDate();
 
-            function fmt(d) {
-              return d.getFullYear() + "-"
-                + ("0" + (d.getMonth() + 1)).slice(-2) + "-"
-                + ("0" + d.getDate()).slice(-2);
-            }
+          function fmt(d) {
+            return d.getFullYear() + "-"
+              + ("0" + (d.getMonth() + 1)).slice(-2) + "-"
+              + ("0" + d.getDate()).slice(-2);
+          }
 
-            var start, end;
+          var start, end;
 
-            if (day > 20) {
+          if (day > 20) {
             // 21-31 → รอบเดือนนี้
             start = new Date(year, month, 20);
             end = now;
@@ -2388,82 +2390,82 @@
             end = now;
           }
 
-            document.getElementById("start").value = fmt(start);
-            document.getElementById("end").value = fmt(end);
-            document.getElementById("summaryArea").classList.add("hidden");
-            document.getElementById("resultArea").classList.add("hidden");
-          }
+          document.getElementById("start").value = fmt(start);
+          document.getElementById("end").value = fmt(end);
+          document.getElementById("summaryArea").classList.add("hidden");
+          document.getElementById("resultArea").classList.add("hidden");
+        }
 
         function generate() {
-            var start = document.getElementById('start').value;
-            var end = document.getElementById('end').value;
-            var source = document.getElementById('sourceFilter').value;
-            if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
+          var start = document.getElementById('start').value;
+          var end = document.getElementById('end').value;
+          var source = document.getElementById('sourceFilter').value;
+          if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
 
-            var btn = document.getElementById('btn');
-            btn.innerText = "Processing..."; btn.disabled = true;
+          var btn = document.getElementById('btn');
+          btn.innerText = "Processing..."; btn.disabled = true;
 
-            // ซ่อนก่อน
-            document.getElementById("summaryArea").classList.add("hidden");
-            document.getElementById("resultArea").classList.add("hidden");
+          // ซ่อนก่อน
+          document.getElementById("summaryArea").classList.add("hidden");
+          document.getElementById("resultArea").classList.add("hidden");
 
-            gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function (data) {
-              currentData = data;
-              btn.innerText = "Generate"; btn.disabled = false;
+          gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function (data) {
+            currentData = data;
+            btn.innerText = "Generate"; btn.disabled = false;
 
-              if (!data.rows || data.rows.length === 0) {
-                showModal({ title: "ไม่พบข้อมูล", text: "ไม่มีข้อมูลในช่วงวันที่เลือก", type: "error" }); return;
-              }
+            if (!data.rows || data.rows.length === 0) {
+              showModal({ title: "ไม่พบข้อมูล", text: "ไม่มีข้อมูลในช่วงวันที่เลือก", type: "error" }); return;
+            }
 
-              // ✅ คำนวณ Summary
-              var totalIn = 0, totalOut = 0;
-              data.rows.forEach(function (row) {
-                var qty = Number(row[3]) || 0;
-                if (row[4] === "IN") totalIn += qty;
-                if (row[4] === "OUT") totalOut += qty;
-              });
-              var balance = totalIn - totalOut;
-
-              // ✅ แสดง Summary
-              document.getElementById("summaryArea").classList.remove("hidden");
-              document.getElementById("sumIn").innerText = totalIn.toLocaleString();
-              document.getElementById("sumOut").innerText = totalOut.toLocaleString();
-              document.getElementById("sumBalance").innerText = balance.toLocaleString();
-              document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
-
-              // ✅ วาด Donut
-              requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                  drawDonut(totalIn, totalOut);
-                });
-              });
-
-              // ตาราง
-              document.getElementById("count").innerText = data.rows.length;
-              document.getElementById('tableHead').innerHTML = "<tr>" + data.header.map(function (h) {
-                return '<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">' + h + '</th>';
-              }).join("") + "</tr>";
-              document.getElementById('tableBody').innerHTML = data.rows.map(function (row) {
-                return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
-                  row.map(function (cell, i) {
-                    if (i === 4) {
-                      var isIn = cell === 'IN';
-                      var bg = isIn ? 'rgba(25,135,84,0.08)' : 'rgba(220,53,69,0.08)';
-                      var color = isIn ? '#198754' : '#dc3545';
-                      var border = isIn ? 'rgba(25,135,84,0.2)' : 'rgba(220,53,69,0.2)';
-                      return '<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';">' + cell + '</span></td>';
-                    }
-                    return '<td style="padding:10px 16px;font-size:13px;color:#4a5568;">' + cell + '</td>';
-                  }).join("") + "</tr>";
-              }).join("");
-
-              document.getElementById('resultArea').classList.remove('hidden');
-
-            }, function (err) {
-              showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
-              btn.innerText = "Generate"; btn.disabled = false;
+            // ✅ คำนวณ Summary
+            var totalIn = 0, totalOut = 0;
+            data.rows.forEach(function (row) {
+              var qty = Number(row[3]) || 0;
+              if (row[4] === "IN") totalIn += qty;
+              if (row[4] === "OUT") totalOut += qty;
             });
-          }
+            var balance = totalIn - totalOut;
+
+            // ✅ แสดง Summary
+            document.getElementById("summaryArea").classList.remove("hidden");
+            document.getElementById("sumIn").innerText = totalIn.toLocaleString();
+            document.getElementById("sumOut").innerText = totalOut.toLocaleString();
+            document.getElementById("sumBalance").innerText = balance.toLocaleString();
+            document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
+
+            // ✅ วาด Donut
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                drawDonut(totalIn, totalOut);
+              });
+            });
+
+            // ตาราง
+            document.getElementById("count").innerText = data.rows.length;
+            document.getElementById('tableHead').innerHTML = "<tr>" + data.header.map(function (h) {
+              return '<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#1a2332;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">' + h + '</th>';
+            }).join("") + "</tr>";
+            document.getElementById('tableBody').innerHTML = data.rows.map(function (row) {
+              return "<tr style='border-top:1px solid #eef0f3;' onmouseover=\"this.style.background='#f8f9fb'\" onmouseout=\"this.style.background='transparent'\">" +
+                row.map(function (cell, i) {
+                  if (i === 4) {
+                    var isIn = cell === 'IN';
+                    var bg = isIn ? 'rgba(25,135,84,0.08)' : 'rgba(220,53,69,0.08)';
+                    var color = isIn ? '#198754' : '#dc3545';
+                    var border = isIn ? 'rgba(25,135,84,0.2)' : 'rgba(220,53,69,0.2)';
+                    return '<td style="padding:10px 16px;"><span style="display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';">' + cell + '</span></td>';
+                  }
+                  return '<td style="padding:10px 16px;font-size:13px;color:#4a5568;">' + cell + '</td>';
+                }).join("") + "</tr>";
+            }).join("");
+
+            document.getElementById('resultArea').classList.remove('hidden');
+
+          }, function (err) {
+            showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
+            btn.innerText = "Generate"; btn.disabled = false;
+          });
+        }
         function drawDonut(totalIn, totalOut) {
           var canvas = document.getElementById("donutChart");
           if (!canvas) return;
