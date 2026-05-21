@@ -2800,6 +2800,7 @@
 
           applyUserEmail(email); // ← จัดการทุกอย่างรวมถึง localStorage
           // โหลด low stock alert
+          loadLowStockAlert(); // ✅ เพิ่มตรงนี้
 
           const name = email.split("@")[0];
           showModal({
