@@ -2798,6 +2798,8 @@
           document.getElementById("loginModal").style.display = "none";
 
           applyUserEmail(email); // ← จัดการทุกอย่างรวมถึง localStorage
+          // โหลด low stock alert
+          loadLowStockAlert();
 
           const name = email.split("@")[0];
           showModal({
@@ -2835,8 +2837,6 @@
           // บันทึก localStorage ทุกครั้ง
           localStorage.setItem("pmn_user_email", email);
         }
-        // โหลด low stock alert
-        loadLowStockAlert();
 
 
         // ================= SAVE REQUISITION =================
