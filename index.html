@@ -2405,14 +2405,14 @@
 
           var start, end;
 
-          if (day > 20) {
-            // 21-31 → รอบเดือนนี้
+          if (day >= 21) {
+            // 21-31 → รอบเดือนนี้ถึงเดือนหน้า
             start = new Date(year, month, 20);
-            end = now;
+            end = new Date(year, month + 1, 20);
           } else {
-            // 1-20 → รอบเดือนก่อน (20 เดือนก่อน ถึง 20 เดือนนี้)
+            // 1-20 → รอบเดือนก่อนถึงเดือนนี้
             start = new Date(year, month - 1, 20);
-            end = now;
+            end = new Date(year, month, 20);
           }
 
           document.getElementById("start").value = fmt(start);
