@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -687,15 +688,15 @@
 
   <!-- LOGIN MODAL -->
   <div id="loginModal" style="display:none;position:fixed;inset:0;z-index:9999;
-  background:rgba(10,18,32,0.92);backdrop-filter:blur(8px);
-  align-items:center;justify-content:center;">
+    background:rgba(10,18,32,0.92);backdrop-filter:blur(8px);
+    align-items:center;justify-content:center;">
     <div style="background:#0f1b2d;border:1px solid rgba(201,168,76,0.35);
-    border-radius:20px;padding:32px 28px;width:340px;max-width:90vw;
-    box-shadow:0 24px 60px rgba(0,0,0,0.6);text-align:center;">
+      border-radius:20px;padding:32px 28px;width:340px;max-width:90vw;
+      box-shadow:0 24px 60px rgba(0,0,0,0.6);text-align:center;">
 
       <div style="width:56px;height:56px;border-radius:50%;margin:0 auto 16px;
-      background:linear-gradient(135deg,#c9a84c,#f0d080);
-      display:flex;align-items:center;justify-content:center;">
+        background:linear-gradient(135deg,#c9a84c,#f0d080);
+        display:flex;align-items:center;justify-content:center;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0f1b2d" stroke-width="2.2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
@@ -703,16 +704,22 @@
       </div>
 
       <div style="font-size:16px;font-weight:700;color:#f0d080;margin-bottom:6px;">PMN SYSTEM</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:24px;">กรุณากรอก Email เพื่อเข้าสู่ระบบ
+      <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:24px;">
+        กรุณาเข้าสู่ระบบด้วย Google Account
       </div>
 
-      <input id="loginEmailInput" type="email" placeholder="your@email.com" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(201,168,76,0.4);
-        background:rgba(255,255,255,0.06);color:#fff;font-size:14px;outline:none;
-        box-sizing:border-box;text-align:center;" onfocus="this.style.borderColor='#c9a84c'"
-        onblur="this.style.borderColor='rgba(201,168,76,0.4)'" onkeydown="if(event.key==='Enter') submitLoginEmail()">
+      <!-- Google Sign-In Button -->
+      <div style="display:flex;justify-content:center;margin-bottom:12px;">
+        <div id="g_id_onload" data-client_id="606545918229-geba6frl5ebtl2844f7437fu0hd2fucd.apps.googleusercontent.com"
+          data-callback="handleGoogleLogin" data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="filled_black"
+          data-text="signin_with" data-size="large" data-locale="th" data-width="280">
+        </div>
+      </div>
 
       <div id="loginError" style="color:#fca5a5;font-size:12px;margin-top:8px;display:none;">
-        กรุณากรอก Email ให้ถูกต้อง
+        ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล
       </div>
 
       <button onclick="submitLoginEmail()" style="width:100%;margin-top:16px;padding:12px;border-radius:10px;
@@ -4110,6 +4117,28 @@
           if (Notification.permission === "granted") doNotify();
           else if (Notification.permission !== "denied")
             Notification.requestPermission().then(function (p) { if (p === "granted") doNotify(); });
+        }
+        //===== LOGIN GOOGLE MAIL =====
+        function handleGoogleLogin(response) {
+          var payload = JSON.parse(atob(response.credential.split('.')[1]));
+          var email = payload.email;
+          var name = payload.name;
+
+          gasCall("getUserByEmail", { email: email }, function (res) {
+            if (!res.success) {
+              var err = document.getElementById("loginError");
+              err.textContent = "ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล";
+              err.style.display = "block";
+              return;
+            }
+            currentUser = email;
+            currentUserName = res.name || name;
+            currentUserRole = res.role || "User";
+            currentEmpId = res.empId || "";
+
+            document.getElementById("loginModal").style.display = "none";
+            showMainMenu();
+          });
         }
       </script>
 
