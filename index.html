@@ -587,6 +587,35 @@
       height: 16px;
       flex-shrink: 0;
     }
+
+  /*===== Alart Min =====*/  
+  .ls-wrap { position: relative; display: inline-flex; align-items: center; gap: 10px; }
+  .ls-btn {
+    position: relative; width: 52px; height: 52px; border-radius: 14px;
+    border: 1.5px solid #e24b4a; background: #fcebeb;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .ls-btn:hover { background: #f7c1c1; }
+  .ls-badge {
+    position: absolute; top: -7px; right: -7px;
+    min-width: 20px; height: 20px; border-radius: 10px;
+    background: #e24b4a; color: #fff; font-size: 11px; font-weight: 700;
+    display: none; align-items: center; justify-content: center;
+    padding: 0 5px; border: 2px solid #fff;
+  }
+  .ls-hint { font-size: 12px; color: #8896a9; }
+  .ls-panel {
+    display: none; position: absolute; top: calc(100% + 8px); left: 0; z-index: 999;
+    background: #fff; border: 0.5px solid rgba(220,53,69,0.2);
+    border-left: 3px solid #e24b4a; border-radius: 0 12px 12px 12px;
+    padding: 14px 16px; min-width: 340px; max-width: 560px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .ls-panel.open { display: block; }
+  .ls-item {
+    background: #fafafa; border: 0.5px solid rgba(220,53,69,0.15);
+    border-radius: 8px; padding: 8px 12px; min-width: 160px;
+  }
   </style>
 </head>
 
@@ -667,7 +696,28 @@
           <h2 class="text-lg font-semibold" style="color:#1a2332;">Main Menu</h2>
           <p class="text-xs" style="color:#8896a9;">Select module to continue</p>
         </div>
-        <div id="lowStockBanner" class="hidden"></div>
+        <div class="ls-wrap">
+          <div class="ls-btn" onclick="document.getElementById('lsPanel').classList.toggle('open')">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#e24b4a" stroke-width="1.8">
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+              <line x1="8" y1="12" x2="8" y2="16" stroke-linecap="round" />
+              <line x1="12" y1="11" x2="12" y2="16" stroke-linecap="round" />
+              <line x1="16" y1="13" x2="16" y2="16" stroke-linecap="round" />
+            </svg>
+            <span id="lsBadge" class="ls-badge">0</span>
+          </div>
+          <span class="ls-hint">คลิกที่ไอคอนเพื่อดูรายละเอียด</span>
+        
+          <div class="ls-panel" id="lsPanel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <span id="lsPanelTitle" style="font-size:13px;font-weight:500;color:#a32d2d;"></span>
+              <span onclick="document.getElementById('lsPanel').classList.remove('open')"
+                style="cursor:pointer;font-size:18px;color:#aaa;">&times;</span>
+            </div>
+            <div id="lsItems" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+          </div>
+        </div>
         <button onclick="showHistory()" title="ประวัติการเบิก" style="width:42px;height:42px;border-radius:12px;
         border:1px solid rgba(201,168,76,0.4);
         background:rgba(201,168,76,0.08);
