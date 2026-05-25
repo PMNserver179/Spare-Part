@@ -2367,15 +2367,22 @@
         // ================= Login ====================== 
         function logoutUser() {
           localStorage.removeItem("pmn_user_email");
-          // ซ่อนการ์ด Approve
           document.getElementById("approveCard").style.display = "none";
           document.getElementById("userEmail").innerText = "USER";
-          document.getElementById("issuer").value = "";
-          // แสดง login modal ใหม่
-          document.getElementById("loginEmailInput").value = "";
+
+          var issuerEl = document.getElementById("issuer");
+          if (issuerEl) issuerEl.value = "";
+
           document.getElementById("loginError").style.display = "none";
           document.getElementById("loginModal").style.display = "flex";
-          setTimeout(() => document.getElementById("loginEmailInput").focus(), 300);
+
+          // Re-render Google Sign-In button
+          if (window.google && google.accounts) {
+            google.accounts.id.renderButton(
+              document.querySelector(".g_id_signin"),
+              { theme: "filled_black", size: "large", locale: "th", width: 280 }
+            );
+          }
         }
 
         // ================= NAVIGATION =================
