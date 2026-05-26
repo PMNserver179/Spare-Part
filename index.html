@@ -687,27 +687,41 @@
 <body class="min-h-screen pb-6">
 
   <!-- LOGIN MODAL -->
-  <div style="display:flex;justify-content:center;margin-bottom:12px;">
-    <div id="g_id_onload" data-client_id="606545918229-geba6frl5ebtl2844f7437fu0hd2fucd.apps.googleusercontent.com"
-      data-callback="handleGoogleLogin" data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="filled_black"
-      data-text="signin_with" data-size="large" data-locale="th" data-width="280">
-    </div>
-  </div>
+  <div id="loginModal" style="display:none;position:fixed;inset:0;z-index:9999;
+    background:rgba(10,18,32,0.92);backdrop-filter:blur(8px);
+    align-items:center;justify-content:center;">
+    <div style="background:#0f1b2d;border:1px solid rgba(201,168,76,0.35);
+      border-radius:20px;padding:32px 28px;width:340px;max-width:90vw;
+      box-shadow:0 24px 60px rgba(0,0,0,0.6);text-align:center;">
 
-  <div id="loginError" style="color:#fca5a5;font-size:12px;margin-top:8px;display:none;">
-    ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล
-  </div>
-
-  <!-- <button onclick="submitLoginEmail()" style="width:100%;margin-top:16px;padding:12px;border-radius:10px;
+      <div style="width:56px;height:56px;border-radius:50%;margin:0 auto 16px;
         background:linear-gradient(135deg,#c9a84c,#f0d080);
-        color:#0f1b2d;font-size:14px;font-weight:700;border:none;cursor:pointer;">
-        เข้าสู่ระบบ
-      </button> -->
-  </div>
-  </div>
+        display:flex;align-items:center;justify-content:center;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0f1b2d" stroke-width="2.2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
 
+      <div style="font-size:16px;font-weight:700;color:#f0d080;margin-bottom:6px;">PMN SYSTEM</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:24px;">
+        กรุณาเข้าสู่ระบบด้วย Google Account
+      </div>
+
+      <div style="display:flex;justify-content:center;margin-bottom:12px;">
+        <div id="g_id_onload" data-client_id="606545918229-geba6frl5ebtl2844f7437fu0hd2fucd.apps.googleusercontent.com"
+          data-callback="handleGoogleLogin" data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="filled_black"
+          data-text="signin_with" data-size="large" data-locale="th" data-width="280">
+        </div>
+      </div>
+
+      <div id="loginError" style="color:#fca5a5;font-size:12px;margin-top:8px;display:none;">
+        ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล
+      </div>
+    </div>
+  </div>
   <!-- ================= MENU ================= -->
   <div id="menuPage" class="min-h-screen" style="background:#f0f2f5;">
     <div class="topbar-gold px-6 py-4 flex justify-between items-center shadow-lg" style="background:#0f1b2d;">
@@ -4132,7 +4146,6 @@
           });
         }
       </script>
-
 </body>
 
 </html>
