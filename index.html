@@ -2925,28 +2925,27 @@
           }
         };
 
-        function submitLoginEmail() {
-          const input = document.getElementById("loginEmailInput");
-          const email = input.value.trim().toLowerCase();
-          if (!email.includes("@") || !email.includes(".")) {
-            document.getElementById("loginError").style.display = "block";
-            return;
-          }
-          document.getElementById("loginError").style.display = "none";
-          document.getElementById("loginModal").style.display = "none";
-
-          applyUserEmail(email); // ← จัดการทุกอย่างรวมถึง localStorage
-          // โหลด low stock alert
-          loadLowStockAlert(); // ✅ เพิ่มตรงนี้
-
-          const name = email.split("@")[0];
-          showModal({
-            title: "เข้าสู่ระบบสำเร็จ",
-            text: `ยินดีต้อนรับ ${name} 👋`,
-            type: "success",
-            autoClose: 1800
-          });
-        }
+        /* function submitLoginEmail() {
+           const input = document.getElementById("loginEmailInput");
+           const email = input.value.trim().toLowerCase();
+           if (!email.includes("@") || !email.includes(".")) {
+             document.getElementById("loginError").style.display = "block";
+             return;
+           }
+           document.getElementById("loginError").style.display = "none";
+           document.getElementById("loginModal").style.display = "none";
+ 
+           applyUserEmail(email); 
+           loadLowStockAlert();
+ 
+           const name = email.split("@")[0];
+           showModal({
+             title: "เข้าสู่ระบบสำเร็จ",
+             text: `ยินดีต้อนรับ ${name} 👋`,
+             type: "success",
+             autoClose: 1800
+           });
+         }*/
 
         function applyUserEmail(email) {
           const display = email ? email.split("@")[0] : "USER";
