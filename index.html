@@ -696,23 +696,6 @@
     </div>
   </div>
 
-  <!-- ✅ ใส่ตรงนี้ — ต่อจาก div ด้านบนเลย -->
-  <div id="loginProgress" style="display:none;margin-top:16px;">
-    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;" id="loginProgressText">
-      กำลังตรวจสอบสิทธิ์...
-    </div>
-    <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;">
-      <div id="loginProgressBar" style="
-        height:100%;
-        width:0%;
-        background:linear-gradient(90deg,#c9a84c,#f0d080);
-        border-radius:4px;
-        transition:width 0.3s ease;
-        box-shadow:0 0 8px rgba(201,168,76,0.6);
-      "></div>
-    </div>
-  </div>
-
   <div id="loginError" style="color:#fca5a5;font-size:12px;margin-top:8px;display:none;">
     ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล
   </div>
@@ -4126,81 +4109,28 @@
           var email = payload.email;
           var name = payload.name;
 
-          // แสดง progress bar
-          var prog = document.getElementById("loginProgress");
-          var bar = document.getElementById("loginProgressBar");
-          var txt = document.getElementById("loginProgressText");
-          prog.style.display = "block";
-
-          // ซ่อนปุ่ม Google ขณะรอ
-          document.querySelector(".g_id_signin").style.opacity = "0.4";
-          document.querySelector(".g_id_signin").style.pointerEvents = "none";
-
-          // Phase 1 → 30% (ทันที)
-          bar.style.width = "30%";
-          txt.textContent = "กำลังตรวจสอบสิทธิ์...";
-
-          // Phase 2 → 65% หลัง 400ms (simulate network)
-          setTimeout(function () {
-            bar.style.width = "65%";
-            txt.textContent = "กำลังโหลดข้อมูลผู้ใช้...";
-          }, 400);
-
           gasCall("getUserByEmail", { email: email }, function (res) {
-            // Phase 3 → 90%
-            bar.style.width = "90%";
-            txt.textContent = "กำลังเข้าสู่ระบบ...";
+            var errEl = document.getElementById("loginError");
 
-            setTimeout(function () {
-              var errEl = document.getElementById("loginError");
+            if (!res.success) {
+              errEl.textContent = "ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล";
+              errEl.style.display = "block";
+              return;
+            }
 
-              if (!res.success) {
-                // Reset progress
-                bar.style.width = "0%";
-                prog.style.display = "none";
-                document.querySelector(".g_id_signin").style.opacity = "1";
-                document.querySelector(".g_id_signin").style.pointerEvents = "auto";
+            errEl.style.display = "none";
+            document.getElementById("loginModal").style.display = "none";
 
-                errEl.textContent = "ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล";
-                errEl.style.display = "block";
-                return;
-              }
+            applyUserEmail(email);
+            loadLowStockAlert();
 
-              // Phase 4 → 100% ✅
-              bar.style.width = "100%";
-              txt.textContent = "เข้าสู่ระบบสำเร็จ ✓";
-              bar.style.background = "linear-gradient(90deg,#198754,#34d399)";
-
-              setTimeout(function () {
-                errEl.style.display = "none";
-                document.getElementById("loginModal").style.display = "none";
-
-                // Reset bar สำหรับครั้งหน้า
-                bar.style.width = "0%";
-                bar.style.background = "linear-gradient(90deg,#c9a84c,#f0d080)";
-                prog.style.display = "none";
-                document.querySelector(".g_id_signin").style.opacity = "1";
-                document.querySelector(".g_id_signin").style.pointerEvents = "auto";
-
-                applyUserEmail(email);
-                loadLowStockAlert();
-
-                showModal({
-                  title: "เข้าสู่ระบบสำเร็จ",
-                  text: "ยินดีต้อนรับ " + (res.name || name.split(" ")[0]),
-                  type: "success",
-                  autoClose: 1800
-                });
-              }, 400);
-
-            }, 300);
-
+            showModal({
+              title: "เข้าสู่ระบบสำเร็จ",
+              text: "ยินดีต้อนรับ " + (res.name || name.split(" ")[0]),
+              type: "success",
+              autoClose: 1800
+            });
           }, function (err) {
-            bar.style.width = "0%";
-            prog.style.display = "none";
-            document.querySelector(".g_id_signin").style.opacity = "1";
-            document.querySelector(".g_id_signin").style.pointerEvents = "auto";
-
             var errEl = document.getElementById("loginError");
             errEl.textContent = "เกิดข้อผิดพลาด: " + err.message;
             errEl.style.display = "block";
