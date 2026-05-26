@@ -4103,7 +4103,6 @@
           else if (Notification.permission !== "denied")
             Notification.requestPermission().then(function (p) { if (p === "granted") doNotify(); });
         }
-        //===== LOGIN GOOGLE MAIL =====
         function handleGoogleLogin(response) {
           var payload = JSON.parse(atob(response.credential.split('.')[1]));
           var email = payload.email;
@@ -4111,19 +4110,15 @@
 
           gasCall("getUserByEmail", { email: email }, function (res) {
             var errEl = document.getElementById("loginError");
-
             if (!res.success) {
               errEl.textContent = "ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล";
               errEl.style.display = "block";
               return;
             }
-
             errEl.style.display = "none";
             document.getElementById("loginModal").style.display = "none";
-
             applyUserEmail(email);
             loadLowStockAlert();
-
             showModal({
               title: "เข้าสู่ระบบสำเร็จ",
               text: "ยินดีต้อนรับ " + (res.name || name.split(" ")[0]),
