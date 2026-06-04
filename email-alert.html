@@ -269,6 +269,7 @@
         }
 
         function addEmail() {
+            if (!IS_DEV) return;
             var inp = document.getElementById("emailInput");
             var raw = inp.value.trim();
             if (!raw) return;
@@ -282,11 +283,13 @@
         }
 
         function removeEmail(email) {
+            if (!IS_DEV) return;
             emails = emails.filter(function (e) { return e !== email; });
             renderChips();
         }
 
         function saveEmails() {
+            if (!IS_DEV) return;
             var btn = document.getElementById("saveBtn");
             var old = btn.innerHTML; btn.disabled = true; btn.innerHTML = "กำลังบันทึก...";
             gasCall("saveEmailList", { emails: emails.join(",") }, function (res) {   // ✅ เปลี่ยนตรงนี้
