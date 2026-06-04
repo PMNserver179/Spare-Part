@@ -355,6 +355,7 @@
             lucide.createIcons();
             var savedEmail = localStorage.getItem("pmn_user_email") || "";
             document.getElementById("userEmail").innerText = savedEmail ? savedEmail.split("@")[0] : "USER";
+            applyDevPermission();
             loadSavedEmails();
             loadLowStock();
         };
