@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMN SYSTEM • Email Alert</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', 'Sarabun', sans-serif;
+            background: #f0f2f5;
+            color: #0f172a;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15);
+        }
+
+        .gold-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+        }
+
+        .topbar-main {
+            background: #0f1b2d;
+            border-bottom: 2px solid rgba(201, 168, 76, 0.4);
+        }
+
+        .topbar-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+        }
+
+        .topbar-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #c9a84c, #f0d080);
+        }
+
+        .topbar-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f0d080;
+        }
+
+        .topbar-sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fcebeb;
+            color: #a32d2d;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+
+        .chip .x {
+            cursor: pointer;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* MODAL */
+        #gModal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 27, 45, 0.6);
+        }
+
+        #gModal.show {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen pb-10">
+
+    <!-- TOPBAR -->
+    <div class="topbar-main shadow">
+        <div class="topbar-inner">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="topbar-logo">
+                    <i data-lucide="mail" class="w-5 h-5" style="color:#0f1b2d;"></i>
+                </div>
+                <div>
+                    <div class="topbar-title">PMN SYSTEM</div>
+                    <div class="topbar-sub">Email Alert Module</div>
+                </div>
+            </div>
+            <div class="text-sm" id="userEmail" style="color:rgba(255,255,255,0.55);">USER</div>
+        </div>
+    </div>
+    <div class="gold-line"></div>
+
+    <div class="max-w-3xl mx-auto p-6 space-y-6">
+
+        <!-- ลิงก์กลับ index.html -->
+        <a href="index.html" class="inline-flex items-center gap-2 px-4 py-1.5 rounded text-sm transition"
+            style="border:1px solid #E8D174;color:#DEB407;background:transparent;">
+            <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> กลับหน้าหลัก
+        </a>
+
+        <div class="border-b pb-3" style="border-color:#dde2ea;">
+            <h2 class="text-lg font-semibold" style="color:#1a2332;">ตั้งค่าอีเมลแจ้งเตือน</h2>
+            <p class="text-xs" style="color:#8896a9;">จัดการรายชื่ออีเมลผู้รับการแจ้งเตือน Stock ต่ำกว่า Minimum</p>
+        </div>
+
+        <!-- จัดการ list อีเมล -->
+        <div class="bg-white border rounded-xl p-6 shadow-sm" style="border-color:#dde2ea;">
+            <div class="flex items-center gap-2 mb-4 font-medium text-gray-700 text-sm">
+                <i data-lucide="users" class="w-4 h-4"></i> รายชื่ออีเมลผู้รับ
+            </div>
+
+            <div class="flex gap-2 mb-3">
+                <input id="emailInput" type="email" class="input"
+                    placeholder="กรอกอีเมล (ใส่หลายอันคั่นด้วย , ได้) แล้วกด Enter"
+                    onkeydown="if(event.key==='Enter'){addEmail();}">
+                <button onclick="addEmail()"
+                    style="flex-shrink:0;background:#0f1b2d;color:#f0d080;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;">
+                    เพิ่ม
+                </button>
+            </div>
+
+            <div id="emailChips" style="display:flex;flex-wrap:wrap;gap:8px;min-height:30px;"></div>
+
+            <div class="flex gap-3 mt-5">
+                <button onclick="saveEmails()" id="saveBtn" class="flex-1 py-2.5 rounded-lg font-semibold text-sm"
+                    style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">
+                    <span class="inline-flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> บันทึกรายชื่อ
+                    </span>
+                </button>
+                <button onclick="sendNow()" id="sendBtn" class="flex-1 py-2.5 rounded-lg font-semibold text-sm"
+                    style="background:linear-gradient(135deg,#dc3545,#ff6b6b);color:#fff;">
+                    <span class="inline-flex items-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> ส่งแจ้งเตือนตอนนี้
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ตัวอย่างรายการ Low Stock -->
+        <div class="bg-white border rounded-xl p-6 shadow-sm" style="border-color:#dde2ea;">
+            <div class="flex items-center gap-2 mb-4 font-medium text-gray-700 text-sm">
+                <i data-lucide="alert-triangle" class="w-4 h-4" style="color:#dc3545;"></i>
+                รายการ Stock ต่ำกว่า Minimum
+                <span id="lowBadge" class="text-xs bg-gray-200 px-2 py-1 rounded-full">0 รายการ</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr style="border-bottom:2px solid #dc3545;">
+                            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">CODE
+                            </th>
+                            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">NAME
+                            </th>
+                            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">SPEC
+                            </th>
+                            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">
+                                BALANCE</th>
+                            <th class="text-left py-2 px-3" style="font-size:11px;color:#8896a9;font-weight:600;">MIN
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="lowTable">
+                        <tr>
+                            <td colspan="5" class="py-4 text-center text-xs" style="color:#8896a9;">กำลังโหลด...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div id="gModal">
+        <div class="bg-white rounded-xl shadow-2xl w-[350px] p-6 text-center"
+            style="border:1px solid rgba(201,168,76,0.2);">
+            <div id="mIcon"
+                class="w-12 h-12 mx-auto mb-3 flex items-center justify-center rounded-full text-xl font-bold"></div>
+            <h2 id="mTitle" class="text-lg font-semibold" style="color:#1a2332;"></h2>
+            <p id="mText" class="text-sm mt-1" style="color:#8896a9;"></p>
+            <button onclick="closeModal()" class="mt-5 w-full py-2 rounded-lg text-sm font-semibold text-white"
+                style="background:#0f1b2d;">ตกลง</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIG: ใช้ GAS_URL เดียวกับ index.html =====
+        var GAS_URL = "https://script.google.com/macros/s/AKfycby_Oqobv961sBxbBIPQce4UYqyog2nkPe3gGpa_FpqUvNWkiXwgFtBa9oxr7LHbz03c/exec";
+
+        function gasCall(action, params, onSuccess, onFail) {
+            var url = GAS_URL + "?action=" + action;
+            Object.keys(params || {}).forEach(function (k) {
+                var v = params[k];
+                url += "&" + k + "=" + encodeURIComponent(typeof v === "object" ? JSON.stringify(v) : v);
+            });
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data && data.error) { if (onFail) onFail({ message: data.message }); }
+                    else { if (onSuccess) onSuccess(data); }
+                })
+                .catch(function (err) { if (onFail) onFail({ message: err.message }); });
+        }
+
+        // ===== MODAL =====
+        function showModal(title, text, type) {
+            var m = document.getElementById("gModal");
+            document.getElementById("mTitle").innerText = title;
+            document.getElementById("mText").innerText = text;
+            var icon = document.getElementById("mIcon");
+            if (type === "success") { icon.style.background = "#e8f5ee"; icon.style.color = "#198754"; icon.innerText = "✓"; }
+            else if (type === "error") { icon.style.background = "#fdecea"; icon.style.color = "#dc3545"; icon.innerText = "✖"; }
+            else { icon.style.background = "#eef2ff"; icon.style.color = "#1a2332"; icon.innerText = "!"; }
+            m.classList.add("show");
+        }
+        function closeModal() { document.getElementById("gModal").classList.remove("show"); }
+
+        // ===== EMAIL LIST (เก็บ local + sync ขึ้นชีท) =====
+        var emails = [];
+
+        function renderChips() {
+            var box = document.getElementById("emailChips");
+            if (emails.length === 0) {
+                box.innerHTML = '<span style="font-size:12px;color:#aaa;">ยังไม่มีอีเมล</span>';
+                return;
+            }
+            box.innerHTML = emails.map(function (e) {
+                return '<span class="chip">' + e
+                    + '<span class="x" onclick="removeEmail(\'' + e + '\')">×</span></span>';
+            }).join("");
+        }
+
+        function addEmail() {
+            var inp = document.getElementById("emailInput");
+            var raw = inp.value.trim();
+            if (!raw) return;
+            var parts = raw.split(/[\s,;]+/).filter(Boolean);
+            parts.forEach(function (e) {
+                e = e.toLowerCase();
+                if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && emails.indexOf(e) === -1) emails.push(e);
+            });
+            inp.value = "";
+            renderChips();
+        }
+
+        function removeEmail(email) {
+            emails = emails.filter(function (e) { return e !== email; });
+            renderChips();
+        }
+
+        function saveEmails() {
+            var btn = document.getElementById("saveBtn");
+            var old = btn.innerHTML; btn.disabled = true; btn.innerHTML = "กำลังบันทึก...";
+            gasCall("saveEmailList", { emails: JSON.stringify(emails) }, function (res) {
+                btn.disabled = false; btn.innerHTML = old;
+                showModal("บันทึกสำเร็จ", "บันทึกรายชื่อ " + emails.length + " อีเมลแล้ว", "success");
+            }, function (err) {
+                btn.disabled = false; btn.innerHTML = old;
+                showModal("เกิดข้อผิดพลาด", err.message, "error");
+            });
+        }
+
+        function sendNow() {
+            if (emails.length === 0) { showModal("ไม่มีอีเมล", "กรุณาเพิ่มอีเมลผู้รับก่อน", "error"); return; }
+            var btn = document.getElementById("sendBtn");
+            var old = btn.innerHTML; btn.disabled = true; btn.innerHTML = "กำลังส่ง...";
+            gasCall("sendLowStockEmail", { emails: JSON.stringify(emails) }, function (res) {
+                btn.disabled = false; btn.innerHTML = old;
+                if (res.sent === false) {
+                    showModal("ไม่ได้ส่ง", res.message || "ไม่มีรายการต่ำกว่า Minimum", "info");
+                } else {
+                    showModal("ส่งสำเร็จ", "แจ้งเตือน " + (res.count || 0) + " รายการ ไปยัง " + emails.length + " อีเมลแล้ว", "success");
+                }
+            }, function (err) {
+                btn.disabled = false; btn.innerHTML = old;
+                showModal("เกิดข้อผิดพลาด", err.message, "error");
+            });
+        }
+
+        // ===== LOAD LOW STOCK PREVIEW =====
+        function loadLowStock() {
+            gasCall("getLowStock", {}, function (res) {
+                var items = res.items || [];
+                document.getElementById("lowBadge").innerText = items.length + " รายการ";
+                var tb = document.getElementById("lowTable");
+                if (items.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-xs" style="color:#198754;">ไม่มีรายการต่ำกว่า Minimum</td></tr>';
+                    return;
+                }
+                tb.innerHTML = items.map(function (it) {
+                    return '<tr style="border-top:1px solid #eef0f3;">'
+                        + '<td class="py-2 px-3" style="color:#4a5568;">' + it.itemCode + '</td>'
+                        + '<td class="py-2 px-3" style="color:#1a2332;font-weight:500;">' + it.itemName + '</td>'
+                        + '<td class="py-2 px-3" style="color:#8896a9;">' + (it.itemSpec || '-') + '</td>'
+                        + '<td class="py-2 px-3"><span style="color:#dc3545;font-weight:700;">' + it.balance + '</span></td>'
+                        + '<td class="py-2 px-3" style="color:#8896a9;">' + it.min + '</td>'
+                        + '</tr>';
+                }).join("");
+            }, function (err) {
+                document.getElementById("lowTable").innerHTML =
+                    '<tr><td colspan="5" class="py-4 text-center text-xs" style="color:#dc3545;">โหลดไม่สำเร็จ: ' + err.message + '</td></tr>';
+            });
+        }
+
+        // ===== LOAD SAVED EMAILS =====
+        function loadSavedEmails() {
+            gasCall("getEmailList", {}, function (res) {
+                emails = res.emails || [];
+                renderChips();
+            }, function () {
+                renderChips();
+            });
+        }
+
+        // ===== INIT =====
+        window.onload = function () {
+            lucide.createIcons();
+            var savedEmail = localStorage.getItem("pmn_user_email") || "";
+            document.getElementById("userEmail").innerText = savedEmail ? savedEmail.split("@")[0] : "USER";
+            loadSavedEmails();
+            loadLowStock();
+        };
+    </script>
+</body>
+
+</html>
