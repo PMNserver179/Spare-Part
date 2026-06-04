@@ -358,6 +358,40 @@
             loadSavedEmails();
             loadLowStock();
         };
+
+        var IS_DEV = false;
+
+        function applyDevPermission() {
+            var savedEmail = localStorage.getItem("pmn_user_email") || "";
+            if (!savedEmail) { lockEditing("ไม่พบผู้ใช้"); return; }
+
+            gasCall("isDeveloper", { email: savedEmail }, function (res) {
+                IS_DEV = !!(res && res.isDev);
+                if (!IS_DEV) lockEditing("เฉพาะ Developer เท่านั้นที่แก้ไขได้");
+            }, function () {
+                lockEditing("ตรวจสอบสิทธิ์ไม่สำเร็จ");
+            });
+        }
+
+        function lockEditing(reason) {
+            // ปิด input + ปุ่มเพิ่ม + บันทึก + ลบ chip
+            var inp = document.getElementById("emailInput");
+            if (inp) { inp.disabled = true; inp.placeholder = "🔒 " + reason; }
+
+            var addBtn = document.querySelector('[onclick="addEmail()"]');
+            var saveBtn = document.getElementById("saveBtn");
+            [addBtn, saveBtn].forEach(function (b) {
+                if (b) { b.disabled = true; b.style.opacity = "0.45"; b.style.cursor = "not-allowed"; }
+            });
+
+            // แบนเนอร์แจ้งเตือน
+            var banner = document.createElement("div");
+            banner.style.cssText = "margin-bottom:12px;padding:10px 14px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c;color:#856404;font-size:13px;display:flex;align-items:center;gap:8px;";
+            banner.innerHTML = '<i data-lucide="lock" style="width:15px;height:15px;"></i> ' + reason + ' (โหมดดูอย่างเดียว)';
+            var card = document.querySelector(".bg-white.border.rounded-xl");
+            if (card) card.parentNode.insertBefore(banner, card);
+            lucide.createIcons();
+        }
     </script>
 </body>
 
