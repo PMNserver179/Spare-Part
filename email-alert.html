@@ -289,7 +289,7 @@
         function saveEmails() {
             var btn = document.getElementById("saveBtn");
             var old = btn.innerHTML; btn.disabled = true; btn.innerHTML = "กำลังบันทึก...";
-            gasCall("saveEmailList", { emails: JSON.stringify(emails) }, function (res) {
+            gasCall("saveEmailList", { emails: emails.join(",") }, function (res) {   // ✅ เปลี่ยนตรงนี้
                 btn.disabled = false; btn.innerHTML = old;
                 showModal("บันทึกสำเร็จ", "บันทึกรายชื่อ " + emails.length + " อีเมลแล้ว", "success");
             }, function (err) {
@@ -302,7 +302,7 @@
             if (emails.length === 0) { showModal("ไม่มีอีเมล", "กรุณาเพิ่มอีเมลผู้รับก่อน", "error"); return; }
             var btn = document.getElementById("sendBtn");
             var old = btn.innerHTML; btn.disabled = true; btn.innerHTML = "กำลังส่ง...";
-            gasCall("sendLowStockEmail", { emails: JSON.stringify(emails) }, function (res) {
+            gasCall("sendLowStockEmail", { emails: emails.join(",") }, function (res) {   // ✅ เปลี่ยนตรงนี้
                 btn.disabled = false; btn.innerHTML = old;
                 if (res.sent === false) {
                     showModal("ไม่ได้ส่ง", res.message || "ไม่มีรายการต่ำกว่า Minimum", "info");
