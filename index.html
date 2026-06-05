@@ -2982,10 +2982,20 @@
             document.getElementById("approveCard").style.display = "block";
           }
 
+          checkEmailAlertAccess(email);
           // บันทึก localStorage ทุกครั้ง
           localStorage.setItem("pmn_user_email", email);
         }
 
+        function checkEmailAlertAccess(email) {
+          if (!email) return;
+          gasCall("isDeveloper", { email: email }, function (res) {
+            if (res && res.isDev) {
+              var btn = document.getElementById("emailAlertBtn");
+              if (btn) btn.style.display = "flex";
+            }
+          }, null);
+        }
 
         // ================= SAVE REQUISITION =================
         function saveData() {
