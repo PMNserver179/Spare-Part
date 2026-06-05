@@ -741,9 +741,11 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
+        <img id="userPic" src="" alt=""
+          style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(201,168,76,0.5);object-fit:cover;display:none;">
         <div class="text-sm" id="userEmail" style="color:rgba(255,255,255,0.55);">USER</div>
         <button onclick="logoutUser()" style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
-      color:rgba(255,255,255,0.4);background:transparent;cursor:pointer;"
+            color:rgba(255,255,255,0.4);background:transparent;cursor:pointer;"
           onmouseover="this.style.borderColor='rgba(201,168,76,0.5)';this.style.color='#f0d080'"
           onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='rgba(255,255,255,0.4)'">
           ⇄ เปลี่ยน
@@ -2370,6 +2372,9 @@
         // ================= Login ====================== 
         function logoutUser() {
           localStorage.removeItem("pmn_user_email");
+          localStorage.removeItem("pmn_user_pic");   // ✅ ลบรูปด้วย
+          var picEl = document.getElementById("userPic");
+          if (picEl) picEl.style.display = "none";   // ✅ ซ่อนรูป
           document.getElementById("approveCard").style.display = "none";
           document.getElementById("userEmail").innerText = "USER";
 
@@ -2961,6 +2966,12 @@
         function applyUserEmail(email) {
           const display = email ? email.split("@")[0] : "USER";
           document.getElementById("userEmail").innerText = display;
+          var pic = localStorage.getItem("pmn_user_pic") || "";
+          var picEl = document.getElementById("userPic");
+          if (picEl) {
+            if (pic) { picEl.src = pic; picEl.style.display = "block"; }
+            else { picEl.style.display = "none"; }
+          }
 
           // set issuer ทุก field ที่มี
           const issuerEl = document.getElementById("issuer");
@@ -4141,6 +4152,7 @@
           var payload = JSON.parse(atob(response.credential.split('.')[1]));
           var email = payload.email;
           var name = payload.name;
+          var picture = payload.picture;
 
           gasCall("getUserByEmail", { email: email }, function (res) {
             var errEl = document.getElementById("loginError");
@@ -4151,13 +4163,14 @@
             }
             errEl.style.display = "none";
             document.getElementById("loginModal").style.display = "none";
+            if (picture) localStorage.setItem("pmn_user_pic", picture);
             applyUserEmail(email);
             loadLowStockAlert();
             showModal({
               title: "เข้าสู่ระบบสำเร็จ",
               text: "ยินดีต้อนรับ " + (res.name || name.split(" ")[0]),
               type: "success",
-              autoClose: 1800
+              autoClose: 1500
             });
           }, function (err) {
             var errEl = document.getElementById("loginError");
