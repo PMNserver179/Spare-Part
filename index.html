@@ -4348,6 +4348,26 @@
           var name = payload.name;
           var picture = payload.picture;
 
+          // ✅ เมลที่ให้ผ่านได้เลย ไม่ต้องเช็คใน GAS
+          var BYPASS_LOGIN = [
+            "naruemon.s@minebea.co.th",
+            "prapatsorn.n@minebea.co.th"
+          ];
+          if (BYPASS_LOGIN.map(function (e) { return e.toLowerCase().trim(); }).includes(email.toLowerCase().trim())) {
+            document.getElementById("loginError").style.display = "none";
+            document.getElementById("loginModal").style.display = "none";
+            if (picture) localStorage.setItem("pmn_user_pic", picture);
+            applyUserEmail(email);
+            loadLowStockAlert();
+            showModal({
+              title: "เข้าสู่ระบบสำเร็จ",
+              text: "ยินดีต้อนรับ " + name.split(" ")[0],
+              type: "success",
+              autoClose: 1500
+            });
+            return;   // ✅ ข้าม gasCall
+          }
+
           gasCall("getUserByEmail", { email: email }, function (res) {
             var errEl = document.getElementById("loginError");
             if (!res.success) {
