@@ -882,6 +882,21 @@
         </div>
       </div>
 
+      <!-- ✅ ทางเลือก: กรอกอีเมลเข้าตรง (สำหรับเน็ตที่บล็อก Google) -->
+      <div style="margin:14px 0;display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.12);"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,0.35);">หรือ</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.12);"></div>
+      </div>
+      <input id="manualEmailInput" type="email" placeholder="กรอกอีเมลที่ได้รับอนุญาต"
+        onkeydown="if(event.key==='Enter') submitManualLogin()"
+        style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(201,168,76,0.3);
+        background:rgba(255,255,255,0.06);color:#fff;font-size:13px;outline:none;margin-bottom:8px;box-sizing:border-box;">
+      <button onclick="submitManualLogin()" style="width:100%;padding:9px;border-radius:8px;border:none;cursor:pointer;
+        background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;font-weight:700;font-size:13px;">
+        เข้าสู่ระบบด้วยอีเมล
+      </button>
+
       <div id="loginError" style="color:#fca5a5;font-size:12px;margin-top:8px;display:none;">
         ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล
       </div>
@@ -4342,6 +4357,7 @@
           else if (Notification.permission !== "denied")
             Notification.requestPermission().then(function (p) { if (p === "granted") doNotify(); });
         }
+        
         function handleGoogleLogin(response) {
           var payload = JSON.parse(atob(response.credential.split('.')[1]));
           var email = payload.email;
@@ -4403,6 +4419,47 @@
           var w = document.querySelector(".profile-wrap");
           if (w) w.classList.remove("open");
         });
+
+        // ✅ เมลที่อนุญาตให้เข้าด้วยการกรอกอีเมลเอง
+          var MANUAL_LOGIN_ALLOW = [
+            "naruemon.s@minebea.co.th",
+            "prapatsorn.n@minebea.co.th"
+          ];
+
+          function submitManualLogin() {
+            var email = (document.getElementById("manualEmailInput").value || "").toLowerCase().trim();
+            var errEl = document.getElementById("loginError");
+
+            if (!email.includes("@")) {
+              errEl.textContent = "กรุณากรอกอีเมลให้ถูกต้อง";
+              errEl.style.display = "block";
+              return;
+            }
+
+            var allowed = MANUAL_LOGIN_ALLOW.map(function (e) { return e.toLowerCase().trim(); });
+            if (!allowed.includes(email)) {
+              errEl.textContent = "อีเมลนี้ไม่ได้รับอนุญาตให้เข้าด้วยวิธีนี้";
+              errEl.style.display = "block";
+              return;
+            }
+
+            // ✅ ผ่าน — เข้าเลย
+            errEl.style.display = "none";
+            document.getElementById("loginModal").style.display = "none";
+            localStorage.setItem("pmn_user_email", email);
+            try {
+              applyUserEmail(email);
+              loadLowStockAlert();
+            } catch (err) {
+              console.error("manual login error:", err);
+            }
+            showModal({
+              title: "เข้าสู่ระบบสำเร็จ",
+              text: "ยินดีต้อนรับ " + email.split("@")[0],
+              type: "success",
+              autoClose: 1500
+            });
+          }
       </script>
 </body>
 
