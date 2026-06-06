@@ -4357,7 +4357,7 @@
           else if (Notification.permission !== "denied")
             Notification.requestPermission().then(function (p) { if (p === "granted") doNotify(); });
         }
-        
+
         function handleGoogleLogin(response) {
           var payload = JSON.parse(atob(response.credential.split('.')[1]));
           var email = payload.email;
@@ -4423,7 +4423,8 @@
         // ✅ เมลที่อนุญาตให้เข้าด้วยการกรอกอีเมลเอง
           var MANUAL_LOGIN_ALLOW = [
             "naruemon.s@minebea.co.th",
-            "prapatsorn.n@minebea.co.th"
+            "prapatsorn.n@minebea.co.th",
+            "jattaphol.c@minebea.co.th"
           ];
 
           function submitManualLogin() {
