@@ -105,6 +105,38 @@
         #gModal.show {
             display: flex;
         }
+
+        .freq-opt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 9px 10px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #4a5568;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.15s;
+        }
+
+        .freq-opt:hover {
+            background: #f8f9fb;
+        }
+
+        .freq-opt.active {
+            background: rgba(201, 168, 76, 0.12);
+            color: #b8860b;
+            font-weight: 600;
+        }
+
+        .freq-opt.active::after {
+            content: "✓";
+            color: #c9a84c;
+            font-weight: 700;
+        }
     </style>
 </head>
 
@@ -142,8 +174,34 @@
 
         <!-- จัดการ list อีเมล -->
         <div class="bg-white border rounded-xl p-6 shadow-sm" style="border-color:#dde2ea;">
-            <div class="flex items-center gap-2 mb-4 font-medium text-gray-700 text-sm">
+            <div class="flex items-center gap-2 mb-4 font-medium text-gray-700 text-sm" style="position:relative;">
                 <i data-lucide="users" class="w-4 h-4"></i> รายชื่ออีเมลผู้รับ
+
+                <!-- ✅ ไอคอนตั้งค่าความถี่ -->
+                <div style="margin-left:auto;position:relative;">
+                    <button onclick="toggleFreqMenu(event)" id="freqBtn"
+                        style="width:34px;height:34px;border-radius:10px;border:1px solid #dde2ea;background:#f8f9fb;
+                        display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;color:#8896a9;"
+                        onmouseover="this.style.background='#eef0f3';this.style.color='#c9a84c'"
+                        onmouseout="this.style.background='#f8f9fb';this.style.color='#8896a9'"
+                        title="ตั้งค่าความถี่การส่ง">
+                        <i data-lucide="settings" style="width:17px;height:17px;"></i>
+                    </button>
+
+                    <div id="freqMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:50;width:230px;
+                        background:#fff;border:1px solid rgba(201,168,76,0.2);border-radius:14px;
+                        box-shadow:0 12px 40px rgba(15,27,45,0.2);padding:8px;">
+                        <div
+                            style="padding:8px 10px 6px;font-size:11px;color:#8896a9;font-weight:600;letter-spacing:0.5px;">
+                            ส่งแจ้งเตือนอัตโนมัติ
+                        </div>
+                        <button class="freq-opt" data-val="off" onclick="setFrequency('off')">ปิด
+                            (ส่งเองเท่านั้น)</button>
+                        <button class="freq-opt" data-val="day" onclick="setFrequency('day')">รายวัน</button>
+                        <button class="freq-opt" data-val="month" onclick="setFrequency('month')">รายเดือน</button>
+                        <button class="freq-opt" data-val="year" onclick="setFrequency('year')">รายปี</button>
+                    </div>
+                </div>
             </div>
 
             <div class="flex gap-2 mb-3">
@@ -361,6 +419,7 @@
             applyDevPermission();
             loadSavedEmails();
             loadLowStock();
+            loadFrequency();
         };
 
         var IS_DEV = false;
@@ -395,6 +454,46 @@
             var card = document.querySelector(".bg-white.border.rounded-xl");
             if (card) card.parentNode.insertBefore(banner, card);
             lucide.createIcons();
+        }
+
+        var currentFreq = "off";
+
+        function toggleFreqMenu(e) {
+            e.stopPropagation();
+            if (!IS_DEV) { showModal("ไม่มีสิทธิ์", "เฉพาะ Developer เท่านั้น", "error"); return; }
+            var m = document.getElementById("freqMenu");
+            m.style.display = m.style.display === "block" ? "none" : "block";
+        }
+        document.addEventListener("click", function () {
+            document.getElementById("freqMenu").style.display = "none";
+        });
+
+        function highlightFreq(val) {
+            document.querySelectorAll(".freq-opt").forEach(function (b) {
+                b.classList.toggle("active", b.dataset.val === val);
+            });
+        }
+
+        function setFrequency(val) {
+            if (!IS_DEV) return;
+            currentFreq = val;
+            highlightFreq(val);
+            document.getElementById("freqMenu").style.display = "none";
+            gasCall("saveAlertFrequency", { freq: val }, function (res) {
+                var label = { off: "ปิดการส่งอัตโนมัติ", day: "รายวัน", month: "รายเดือน", year: "รายปี" }[val];
+                showModal("บันทึกแล้ว", "ตั้งค่าการส่งอัตโนมัติ: " + label, "success");
+            }, function (err) {
+                showModal("เกิดข้อผิดพลาด", err.message, "error");
+            });
+        }
+
+        function loadFrequency() {
+            gasCall("getAlertFrequency", {}, function (res) {
+                currentFreq = (res && res.freq) ? res.freq : "off";
+                highlightFreq(currentFreq);
+            }, function () {
+                highlightFreq("off");
+            });
         }
     </script>
 </body>
