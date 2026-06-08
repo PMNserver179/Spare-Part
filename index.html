@@ -1019,8 +1019,8 @@
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-        <div onclick="showInput()" class="relative cursor-pointer overflow-hidden rounded-xl"
-          style="height:200px;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
+        <div id="inputCard" onclick="showInput()" class="relative cursor-pointer overflow-hidden rounded-xl"
+          style="display:none; height:200px;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
           onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 40px rgba(0,0,0,0.2)'"
           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'">
           <div
@@ -3203,6 +3203,16 @@
           const allowed = APPROVE_WHITELIST.map(e => e.toLowerCase().trim());
           if (allowed.includes(email.toLowerCase().trim())) {
             document.getElementById("approveCard").style.display = "block";
+          }
+
+            // ✅ ลิสต์คนที่เห็นการ์ด Spare Part Input (แยกต่างหาก)
+          const INPUT_WHITELIST = [
+            "pmnstore48@gmail.com",
+            "naruemon.s@minebea.co.th"
+          ];
+          const inputAllowed = INPUT_WHITELIST.map(e => e.toLowerCase().trim());
+          if (inputAllowed.includes(email.toLowerCase().trim())) {
+            document.getElementById("inputCard").style.display = "block";
           }
 
           checkEmailAlertAccess(email);
