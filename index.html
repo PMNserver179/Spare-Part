@@ -4367,7 +4367,7 @@
           var picture = payload.picture;
 
           // ✅ เมลที่ให้ผ่านได้เลย ไม่ต้องเช็คใน GAS
-          var BYPASS_LOGIN = [
+          /*var BYPASS_LOGIN = [
             "naruemon.s@minebea.co.th",
             "prapatsorn.n@minebea.co.th"
           ];
@@ -4384,31 +4384,48 @@
               autoClose: 1500
             });
             return;   // ✅ ข้าม gasCall
-          }
-
-          gasCall("getUserByEmail", { email: email }, function (res) {
-            var errEl = document.getElementById("loginError");
-            if (!res.success) {
-              errEl.textContent = "ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล";
-              errEl.style.display = "block";
-              return;
-            }
-            errEl.style.display = "none";
-            document.getElementById("loginModal").style.display = "none";
-            if (picture) localStorage.setItem("pmn_user_pic", picture);
+          }*/
+          document.getElementById("loginError").style.display = "none";
+          document.getElementById("loginModal").style.display = "none";
+          if (picture) localStorage.setItem("pmn_user_pic", picture);
+          localStorage.setItem("pmn_user_email", email);
+          try {
             applyUserEmail(email);
             loadLowStockAlert();
-            showModal({
-              title: "เข้าสู่ระบบสำเร็จ",
-              text: "ยินดีต้อนรับ " + (res.name || name.split(" ")[0]),
-              type: "success",
-              autoClose: 1500
-            });
-          }, function (err) {
-            var errEl = document.getElementById("loginError");
-            errEl.textContent = "เกิดข้อผิดพลาด: " + err.message;
-            errEl.style.display = "block";
+          } catch (err) {
+            console.error("login error:", err);
+          }
+          showModal({
+            title: "เข้าสู่ระบบสำเร็จ",
+            text: "ยินดีต้อนรับ " + name.split(" ")[0],
+            type: "success",
+            autoClose: 1500
           });
+        }
+
+        gasCall("getUserByEmail", { email: email }, function (res) {
+          var errEl = document.getElementById("loginError");
+          if (!res.success) {
+            errEl.textContent = "ไม่พบ Email นี้ในระบบ กรุณาติดต่อผู้ดูแล";
+            errEl.style.display = "block";
+            return;
+          }
+          errEl.style.display = "none";
+          document.getElementById("loginModal").style.display = "none";
+          if (picture) localStorage.setItem("pmn_user_pic", picture);
+          applyUserEmail(email);
+          loadLowStockAlert();
+          showModal({
+            title: "เข้าสู่ระบบสำเร็จ",
+            text: "ยินดีต้อนรับ " + (res.name || name.split(" ")[0]),
+            type: "success",
+            autoClose: 1500
+          });
+        }, function (err) {
+          var errEl = document.getElementById("loginError");
+          errEl.textContent = "เกิดข้อผิดพลาด: " + err.message;
+          errEl.style.display = "block";
+        });
         }
         // โปรไฟล์
         function toggleProfileMenu(e) {
@@ -4423,46 +4440,46 @@
         });
 
         // ✅ เมลที่อนุญาตให้เข้าด้วยการกรอกอีเมลเอง
-          var MANUAL_LOGIN_ALLOW = [
-            "naruemon.s@minebea.co.th",
-            "prapatsorn.n@minebea.co.th",
-            "jattaphol.c@minebea.co.th"
-          ];
+        var MANUAL_LOGIN_ALLOW = [
+          "naruemon.s@minebea.co.th",
+          "prapatsorn.n@minebea.co.th",
+          "jattaphol.c@minebea.co.th"
+        ];
 
-          function submitManualLogin() {
-            var email = (document.getElementById("manualEmailInput").value || "").toLowerCase().trim();
-            var errEl = document.getElementById("loginError");
+        function submitManualLogin() {
+          var email = (document.getElementById("manualEmailInput").value || "").toLowerCase().trim();
+          var errEl = document.getElementById("loginError");
 
-            if (!email.includes("@")) {
-              errEl.textContent = "กรุณากรอกอีเมลให้ถูกต้อง";
-              errEl.style.display = "block";
-              return;
-            }
-
-            var allowed = MANUAL_LOGIN_ALLOW.map(function (e) { return e.toLowerCase().trim(); });
-            if (!allowed.includes(email)) {
-              errEl.textContent = "อีเมลนี้ไม่ได้รับอนุญาตให้เข้าด้วยวิธีนี้";
-              errEl.style.display = "block";
-              return;
-            }
-
-            // ✅ ผ่าน — เข้าเลย
-            errEl.style.display = "none";
-            document.getElementById("loginModal").style.display = "none";
-            localStorage.setItem("pmn_user_email", email);
-            try {
-              applyUserEmail(email);
-              loadLowStockAlert();
-            } catch (err) {
-              console.error("manual login error:", err);
-            }
-            showModal({
-              title: "เข้าสู่ระบบสำเร็จ",
-              text: "ยินดีต้อนรับ " + email.split("@")[0],
-              type: "success",
-              autoClose: 1500
-            });
+          if (!email.includes("@")) {
+            errEl.textContent = "กรุณากรอกอีเมลให้ถูกต้อง";
+            errEl.style.display = "block";
+            return;
           }
+
+          var allowed = MANUAL_LOGIN_ALLOW.map(function (e) { return e.toLowerCase().trim(); });
+          if (!allowed.includes(email)) {
+            errEl.textContent = "อีเมลนี้ไม่ได้รับอนุญาตให้เข้าด้วยวิธีนี้";
+            errEl.style.display = "block";
+            return;
+          }
+
+          // ✅ ผ่าน — เข้าเลย
+          errEl.style.display = "none";
+          document.getElementById("loginModal").style.display = "none";
+          localStorage.setItem("pmn_user_email", email);
+          try {
+            applyUserEmail(email);
+            loadLowStockAlert();
+          } catch (err) {
+            console.error("manual login error:", err);
+          }
+          showModal({
+            title: "เข้าสู่ระบบสำเร็จ",
+            text: "ยินดีต้อนรับ " + email.split("@")[0],
+            type: "success",
+            autoClose: 1500
+          });
+        }
       </script>
 </body>
 
