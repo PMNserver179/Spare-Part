@@ -4392,6 +4392,11 @@
           try {
             applyUserEmail(email);
             loadLowStockAlert();
+            // ✅ ถ้า scan QR มาพร้อม ?page=tool → เด้งเข้าหน้า tool เลย
+            var params = new URLSearchParams(window.location.search);
+            if (params.get("page") === "tool") {
+              showToolBorrow();
+            }
           } catch (err) {
             console.error("login error:", err);
           }
