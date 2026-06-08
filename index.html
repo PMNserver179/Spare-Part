@@ -4012,7 +4012,10 @@
           document.getElementById("tool_borrower").value = email;
 
           gasCall("getToolUserRole", { email: email }, function (res) {
-            toolIsAdmin = res.role === "Admin";
+            // ✅ รองรับ role หลายค่า เช่น "Admin Developer"
+            var role = (res && res.role ? String(res.role) : "").toLowerCase();
+            toolIsAdmin = role.indexOf("admin") > -1;
+
             var adminTab = document.getElementById("toolAdminTab");
             if (toolIsAdmin) {
               adminTab.style.display = "flex";
