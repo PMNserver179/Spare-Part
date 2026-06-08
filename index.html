@@ -1077,8 +1077,8 @@
           </div>
         </div>
 
-        <div onclick="showReport()" class="relative cursor-pointer overflow-hidden rounded-xl"
-          style="height:200px;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
+        <div id="reportCard" onclick="showReport()" class="relative cursor-pointer overflow-hidden rounded-xl"
+          style="display:none; height:200px;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
           onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 40px rgba(0,0,0,0.2)'"
           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'">
           <div
@@ -3207,12 +3207,22 @@
 
             // ✅ ลิสต์คนที่เห็นการ์ด Spare Part Input (แยกต่างหาก)
           const INPUT_WHITELIST = [
-            "pmnstore48@gmail.com",
-            "naruemon.s@minebea.co.th"
+            "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
           ];
           const inputAllowed = INPUT_WHITELIST.map(e => e.toLowerCase().trim());
           if (inputAllowed.includes(email.toLowerCase().trim())) {
             document.getElementById("inputCard").style.display = "block";
+          }
+
+          // ✅ ลิสต์คนที่เห็นการ์ด Stock Report (แยกต่างหาก)
+          const REPORT_WHITELIST = [
+            "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
+          ];
+          const reportAllowed = REPORT_WHITELIST.map(e => e.toLowerCase().trim());
+          if (reportAllowed.includes(email.toLowerCase().trim())) {
+            document.getElementById("reportCard").style.display = "block";
           }
 
           checkEmailAlertAccess(email);
