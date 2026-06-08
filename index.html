@@ -3225,6 +3225,18 @@
             document.getElementById("reportCard").style.display = "block";
           }
 
+          // ✅ ปุ่มที่เห็นเฉพาะคนใน whitelist
+          const TOOLBAR_WHITELIST = [
+            "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
+          ];
+          if (TOOLBAR_WHITELIST.map(e => e.toLowerCase().trim()).includes(email.toLowerCase().trim())) {
+            var sb = document.getElementById("sheetBtn");
+            var hb = document.getElementById("historyBtn");
+            if (sb) sb.style.display = "flex";
+            if (hb) hb.style.display = "flex";
+          }
+
           checkEmailAlertAccess(email);
           localStorage.setItem("pmn_user_email", email);
         }
