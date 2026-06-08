@@ -3129,6 +3129,8 @@
               if (allowed.includes(savedEmail.toLowerCase().trim())) {
                 showApprove(); // ข้ามไปหน้า Approve เลย
               }
+            } else if (params.get("page") === "tool") {   // ✅ เพิ่มตรงนี้
+              showToolBorrow();
             }
             loadLowStockAlert();
             // ไม่แสดง modal — เข้าระบบอัตโนมัติ
