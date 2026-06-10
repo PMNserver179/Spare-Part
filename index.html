@@ -1317,10 +1317,10 @@
                 <label class="text-xs" style="color:#8896a9;">Spec</label>
                 <input type="text" id="new_itemSpec" class="input" placeholder="เช่น 2RS, 1 inch">
               </div>
-              <div>
-                <label class="text-xs" style="color:#8896a9;">Received</label>
-                <input type="text" id="new_itemReceived" class="input" readonly style="background:#f8f9fb;">
-              </div>
+                <div>
+                  <label class="text-xs" style="color:#8896a9;">Received (จำนวนรับเข้า)</label>
+                  <input type="number" id="new_itemReceived" class="input" min="0" value="0" placeholder="เช่น 10">
+                </div>
             </div>
 
             <div class="flex gap-3 mt-5">
@@ -3440,7 +3440,7 @@
           document.getElementById("new_itemCode").value = "";
           document.getElementById("new_itemName").value = "";
           document.getElementById("new_itemSpec").value = "";
-          document.getElementById("new_itemReceived").value = localStorage.getItem("pmn_user_email") || "";
+          document.getElementById("new_itemReceived").value = "0";   // ✅ จำนวนเริ่มต้น 0
           var modal = document.getElementById("addItemModal");
           modal.style.display = "flex";
           lucide.createIcons();
@@ -3456,7 +3456,7 @@
             itemCode: document.getElementById("new_itemCode").value.trim(),
             itemName: document.getElementById("new_itemName").value.trim(),
             itemSpec: document.getElementById("new_itemSpec").value.trim(),
-            received: document.getElementById("new_itemReceived").value.trim()
+            received: document.getElementById("new_itemReceived").value.trim() || "0"   // ✅ จำนวน
           };
           if (!data.itemCode || !data.itemName) {
             showModal({ title: "ข้อมูลไม่ครบ", text: "กรุณากรอก Item Code และ Item Name", type: "error" });
