@@ -1441,9 +1441,11 @@
           </div>
           <div>
             <label class="text-xs" style="color:transparent;display:block;">‎</label>
-            <button onclick="generate()" id="btn" class="w-full rounded text-sm font-semibold transition"
-              style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;height:36px;box-sizing:border-box;display:block;margin-top: 5rem;">
-              Export
+            <button onclick="generate()" id="btn" class="w-full rounded text-sm font-semibold transition relative overflow-hidden"
+              style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;height:36px;box-sizing:border-box;display:block;margin-top:8px;">
+              <span id="btnLabel">Export</span>
+              <div id="btnProgress"
+                style="position:absolute;bottom:0;left:0;height:3px;width:0%;background:#0f1b2d;transition:width 0.3s ease;"></div>
             </button>
           </div>
         </div>
@@ -2778,48 +2780,68 @@
         }
 
         function generate() {
-          var start = document.getElementById('start').value;
-          var end = document.getElementById('end').value;
-          var source = document.getElementById('sourceFilter').value;
-          if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
+            var start = document.getElementById('start').value;
+            var end = document.getElementById('end').value;
+            var source = document.getElementById('sourceFilter').value;
+            if (!start || !end) { showModal({ title: "แจ้งเตือน", text: "กรุณาเลือกวันที่", type: "error" }); return; }
 
-          var btn = document.getElementById('btn');
-          btn.innerText = "Processing..."; btn.disabled = true;
+            var btn = document.getElementById('btn');
+            var label = document.getElementById('btnLabel');
+            var progress = document.getElementById('btnProgress');
 
-          // ซ่อนก่อน
-          document.getElementById("summaryArea").classList.add("hidden");
-          document.getElementById("resultArea").classList.add("hidden");
+            btn.disabled = true;
+            label.innerText = "Processing...";
+            progress.style.width = "0%";
 
-          gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function (data) {
-            currentData = data;
-            btn.innerText = "Generate"; btn.disabled = false;
+            // ✅ animate progress วิ่งแบบ fake จนกว่าจะได้ผลลัพธ์
+            var pct = 0;
+            var progressTimer = setInterval(function () {
+              pct += (100 - pct) * 0.1; // ค่อยๆ ใกล้ 100% แต่ไม่ถึง
+              progress.style.width = Math.min(pct, 92) + "%";
+            }, 150);
 
-            if (!data.rows || data.rows.length === 0) {
-              showModal({ title: "ไม่พบข้อมูล", text: "ไม่มีข้อมูลในช่วงวันที่เลือก", type: "error" }); return;
-            }
+            // ซ่อนก่อน
+            document.getElementById("summaryArea").classList.add("hidden");
+            document.getElementById("resultArea").classList.add("hidden");
 
-            // ✅ คำนวณ Summary
-            var totalIn = 0, totalOut = 0;
-            data.rows.forEach(function (row) {
-              var qty = Number(row[3]) || 0;
-              if (row[4] === "IN") totalIn += qty;
-              if (row[4] === "OUT") totalOut += qty;
-            });
-            var balance = totalIn - totalOut;
+            gasCall("getReportData", { startDate: start, endDate: end, sourceFilter: source }, function (data) {
+              currentData = data;
 
-            // ✅ แสดง Summary
-            document.getElementById("summaryArea").classList.remove("hidden");
-            document.getElementById("sumIn").innerText = totalIn.toLocaleString();
-            document.getElementById("sumOut").innerText = totalOut.toLocaleString();
-            document.getElementById("sumBalance").innerText = balance.toLocaleString();
-            document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
+              // ✅ จบ progress ให้เต็ม 100% แล้วค่อยรีเซ็ตปุ่ม
+              clearInterval(progressTimer);
+              progress.style.width = "100%";
+              setTimeout(function () {
+                progress.style.width = "0%";
+                label.innerText = "Generate";
+                btn.disabled = false;
+              }, 300);
 
-            // ✅ วาด Donut
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                drawDonut(totalIn, totalOut);
+              if (!data.rows || data.rows.length === 0) {
+                showModal({ title: "ไม่พบข้อมูล", text: "ไม่มีข้อมูลในช่วงวันที่เลือก", type: "error" }); return;
+              }
+
+              // ✅ คำนวณ Summary
+              var totalIn = 0, totalOut = 0;
+              data.rows.forEach(function (row) {
+                var qty = Number(row[3]) || 0;
+                if (row[4] === "IN") totalIn += qty;
+                if (row[4] === "OUT") totalOut += qty;
               });
-            });
+              var balance = totalIn - totalOut;
+
+              // ✅ แสดง Summary
+              document.getElementById("summaryArea").classList.remove("hidden");
+              document.getElementById("sumIn").innerText = totalIn.toLocaleString();
+              document.getElementById("sumOut").innerText = totalOut.toLocaleString();
+              document.getElementById("sumBalance").innerText = balance.toLocaleString();
+              document.getElementById("sumBalance").style.color = balance >= 0 ? "#198754" : "#dc3545";
+
+              // ✅ วาด Donut
+              requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                  drawDonut(totalIn, totalOut);
+                });
+              });
 
             // ตาราง
             document.getElementById("count").innerText = data.rows.length;
@@ -2843,10 +2865,13 @@
             document.getElementById('resultArea').classList.remove('hidden');
 
           }, function (err) {
-            showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
-            btn.innerText = "Generate"; btn.disabled = false;
-          });
-        }
+              clearInterval(progressTimer);
+              progress.style.width = "0%";
+              label.innerText = "Generate";
+              btn.disabled = false;
+              showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
+            });
+          }
         function drawDonut(totalIn, totalOut) {
           var canvas = document.getElementById("donutChart");
           if (!canvas) return;
