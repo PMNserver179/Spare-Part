@@ -4489,7 +4489,10 @@
         }
 
         function handleGoogleLogin(response) {
-          var payload = JSON.parse(atob(response.credential.split('.')[1]));
+          var base64Url = response.credential.split('.')[1];
+          var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          while (base64.length % 4) { base64 += '='; }
+          var payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
           var email = payload.email;
           var name = payload.name;
           var picture = payload.picture;
@@ -4520,13 +4523,14 @@
           try {
             applyUserEmail(email);
             loadLowStockAlert();
-            // ✅ ถ้า scan QR มาพร้อม ?page=tool → เด้งเข้าหน้า tool เลย
+            // ✅ ถ้า scan QR มาพร้อม ?page=tool หรือ ?page=form → เด้งเข้าหน้านั้นเลย
             var params = new URLSearchParams(window.location.search);
             if (params.get("page") === "tool") {
-              showToolBorrow();
-            } else if (params.get("page") === "form") {
               var qrItem = params.get("item") || "";
-              showForm(qrItem);
+              showToolBorrow(qrItem);
+            } else if (params.get("page") === "form") {
+              var qrItem2 = params.get("item") || "";
+              showForm(qrItem2);
             }
           } catch (err) {
             console.error("login error:", err);
