@@ -1951,6 +1951,7 @@
                 <th class="text-left py-2">ID</th>
                 <th class="text-left py-2">EMP</th>
                 <th class="text-left py-2">ITEM</th>
+                <th class="text-left py-2">SPEC</th>
                 <th class="text-left py-2">QTY</th>
                 <th class="text-left py-2">DATE</th>
                 <th class="text-left py-2">STATUS</th>
@@ -3371,7 +3372,7 @@
             if (r.status.includes("ไม่อนุมัติ")) { bg = "#f8d7da"; color = "#842029"; }
             return `
     <tr style="border-top:1px solid #eee;">
-      <td>${r.id}</td><td>${r.empName}</td><td>${r.itemName}</td><td>${r.qty}</td><td>${r.date}</td>
+      <td>${r.id}</td><td>${r.empName}</td><td>${r.itemName}</td><td>${r.spec}</td><td>${r.qty}</td><td>${r.date}</td>
       <td><span style="padding:4px 10px;border-radius:999px;font-size:12px;background:${bg};color:${color};font-weight:600;">${r.status}</span></td>
       <td>
         <button onclick="approve('${r.id}')" style="background:#198754;color:white;padding:4px 8px;border-radius:4px;">✔</button>
