@@ -3162,8 +3162,9 @@
               if (allowed.includes(savedEmail.toLowerCase().trim())) {
                 showApprove(); // ข้ามไปหน้า Approve เลย
               }
-            } else if (params.get("page") === "tool") {   // ✅ เพิ่มตรงนี้
-              showToolBorrow();
+            } else if (params.get("page") === "tool") {
+              var qrItem = params.get("item") || "";
+              showToolBorrow(qrItem);
             } else if (params.get("page") === "form") {   // ✅ เพิ่มใหม่
               showForm();
             }
@@ -4075,12 +4076,18 @@
         var toolIsAdmin = false;
         var toolRefreshTimer; // ✅ เพิ่มตรงนี้
 
-        function showToolBorrow() {
-          document.getElementById("menuPage").classList.add("hidden");
-          document.getElementById("toolBorrowPage").classList.remove("hidden");
-          lucide.createIcons();
-          var email = localStorage.getItem("pmn_user_email") || "";
-          document.getElementById("tool_borrower").value = email;
+        function showToolBorrow(prefillItem) {
+            document.getElementById("menuPage").classList.add("hidden");
+            document.getElementById("toolBorrowPage").classList.remove("hidden");
+            lucide.createIcons();
+            var email = localStorage.getItem("pmn_user_email") || "";
+            document.getElementById("tool_borrower").value = email;
+
+            // ✅ ถ้ามีชื่อมาจาก QR ให้เติมและค้นหาทันที
+            if (prefillItem) {
+              document.getElementById("tool_itemName").value = prefillItem;
+              searchToolItem();
+            }
 
           gasCall("getToolUserRole", { email: email }, function (res) {
             // ✅ รองรับ role หลายค่า เช่น "Admin Developer"
@@ -4113,7 +4120,7 @@
             loadMyToolBorrows();
             loadToolStatus();
             if (toolIsAdmin) loadToolApproveList();
-          }, 5000);
+          }, 3000);
         }
 
         function showToolTab(tab) {
