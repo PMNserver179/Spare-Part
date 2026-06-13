@@ -2626,10 +2626,30 @@
           document.getElementById("menuPage").classList.add("hidden");
           document.getElementById("formPage").classList.remove("hidden");
 
-          // ✅ ถ้ามีชื่อมาจาก QR ให้เติมและค้นหาทันที
+          // ✅ ถ้ามีชื่อมาจาก QR ให้เติมและค้นหาทันที (ไม่รอ debounce)
           if (prefillItem) {
             document.getElementById("itemName").value = prefillItem;
-            searchItemClient('name');
+            gasCall("searchItem", { keyword: prefillItem }, function (data) {
+              var list = data.items;
+              if (!list || list.length === 0) return;
+
+              // เลือกตัวที่ชื่อตรงเป๊ะก่อน ไม่งั้นเอาตัวแรก
+              var match = list.find(function (i) {
+                return i.name.toLowerCase().trim() === prefillItem.toLowerCase().trim();
+              }) || list[0];
+
+              document.getElementById("itemCode").value = match.code;
+              document.getElementById("itemName").value = match.name;
+
+              var spec = document.getElementById("spec");
+              spec.innerHTML = "";
+              list.filter(function (i) { return i.name === match.name; })
+                .forEach(function (i) {
+                  var opt = document.createElement("option");
+                  opt.value = i.spec; opt.text = i.spec;
+                  spec.appendChild(opt);
+                });
+            }, null);
           }
         }
 
