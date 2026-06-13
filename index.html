@@ -2622,9 +2622,15 @@
           showReportPage();
         }
 
-        function showForm() {
+        function showForm(prefillItem) {
           document.getElementById("menuPage").classList.add("hidden");
           document.getElementById("formPage").classList.remove("hidden");
+
+          // ✅ ถ้ามีชื่อมาจาก QR ให้เติมและค้นหาทันที
+          if (prefillItem) {
+            document.getElementById("itemName").value = prefillItem;
+            searchItemClient('name');
+          }
         }
 
         function showApprove() {
@@ -3165,8 +3171,9 @@
             } else if (params.get("page") === "tool") {
               var qrItem = params.get("item") || "";
               showToolBorrow(qrItem);
-            } else if (params.get("page") === "form") {   // ✅ เพิ่มใหม่
-              showForm();
+            } else if (params.get("page") === "form") {
+              var qrItem = params.get("item") || "";
+              showForm(qrItem);
             }
             loadLowStockAlert();
             // ไม่แสดง modal — เข้าระบบอัตโนมัติ
@@ -4077,17 +4084,17 @@
         var toolRefreshTimer; // ✅ เพิ่มตรงนี้
 
         function showToolBorrow(prefillItem) {
-            document.getElementById("menuPage").classList.add("hidden");
-            document.getElementById("toolBorrowPage").classList.remove("hidden");
-            lucide.createIcons();
-            var email = localStorage.getItem("pmn_user_email") || "";
-            document.getElementById("tool_borrower").value = email;
+          document.getElementById("menuPage").classList.add("hidden");
+          document.getElementById("toolBorrowPage").classList.remove("hidden");
+          lucide.createIcons();
+          var email = localStorage.getItem("pmn_user_email") || "";
+          document.getElementById("tool_borrower").value = email;
 
-            // ✅ ถ้ามีชื่อมาจาก QR ให้เติมและค้นหาทันที
-            if (prefillItem) {
-              document.getElementById("tool_itemName").value = prefillItem;
-              searchToolItem();
-            }
+          // ✅ ถ้ามีชื่อมาจาก QR ให้เติมและค้นหาทันที
+          if (prefillItem) {
+            document.getElementById("tool_itemName").value = prefillItem;
+            searchToolItem();
+          }
 
           gasCall("getToolUserRole", { email: email }, function (res) {
             // ✅ รองรับ role หลายค่า เช่น "Admin Developer"
@@ -4497,8 +4504,9 @@
             var params = new URLSearchParams(window.location.search);
             if (params.get("page") === "tool") {
               showToolBorrow();
-            } else if (params.get("page") === "form") {   // ✅ เพิ่มใหม่
-              showForm();
+            } else if (params.get("page") === "form") {
+              var qrItem = params.get("item") || "";
+              showForm(qrItem);
             }
           } catch (err) {
             console.error("login error:", err);
@@ -4583,7 +4591,8 @@
             if (params.get("page") === "tool") {
               showToolBorrow();
             } else if (params.get("page") === "form") {
-              showForm();
+              var qrItem = params.get("item") || "";
+              showForm(qrItem);
             }
           } catch (err) {
             console.error("manual login error:", err);
