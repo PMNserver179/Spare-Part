@@ -3160,6 +3160,8 @@
               }
             } else if (params.get("page") === "tool") {   // ✅ เพิ่มตรงนี้
               showToolBorrow();
+            } else if (params.get("page") === "form") {   // ✅ เพิ่มใหม่
+              showForm();
             }
             loadLowStockAlert();
             // ไม่แสดง modal — เข้าระบบอัตโนมัติ
@@ -4462,6 +4464,8 @@
             var params = new URLSearchParams(window.location.search);
             if (params.get("page") === "tool") {
               showToolBorrow();
+            } else if (params.get("page") === "form") {   // ✅ เพิ่มใหม่
+              showForm();
             }
           } catch (err) {
             console.error("login error:", err);
@@ -4541,6 +4545,13 @@
           try {
             applyUserEmail(email);
             loadLowStockAlert();
+            // ✅ เพิ่ม redirect ตาม page param
+            var params = new URLSearchParams(window.location.search);
+            if (params.get("page") === "tool") {
+              showToolBorrow();
+            } else if (params.get("page") === "form") {
+              showForm();
+            }
           } catch (err) {
             console.error("manual login error:", err);
           }
@@ -4548,7 +4559,7 @@
             title: "เข้าสู่ระบบสำเร็จ",
             text: "ยินดีต้อนรับ " + email.split("@")[0],
             type: "success",
-            autoClose: 1500
+            autoClose: 1000
           });
         }
       </script>
