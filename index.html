@@ -1661,13 +1661,13 @@
             <input type="text" id="empId" oninput="fetchEmpName()" class="input">
           </div>
           <div>
-            <label class="text-xs" style="color:#8896a9;">Employee Name</label>
+            <label class="text-xs" style="color:#8896a9;">Employee Name <span style="color:red; font-size:15px;">*</span></label>
             <input type="text" id="empName" class="input" style="background:#f8f9fb;" readonly>
           </div>
 
           <!-- Item Code + QR -->
           <div>
-            <label class="text-xs" style="color:#8896a9;">Item Code</label>
+            <label class="text-xs" style="color:#8896a9;">Item Code <span style="color:red; font-size:15px;">*</span></label>
             <div class="input-qr-row">
               <input type="text" id="itemCode" oninput="searchItemClient('code')" class="input">
               <!-- สำหรับ Requisition -->
@@ -1690,7 +1690,7 @@
           </div>
 
           <div>
-            <label class="text-xs" style="color:#8896a9;">Item Name</label>
+            <label class="text-xs" style="color:#8896a9;">Item Name <span style="color:red; font-size:15px;">*</span></label>
             <input type="text" id="itemName" oninput="searchItemClient('name')" class="input">
           </div>
           <div>
@@ -1698,11 +1698,11 @@
             <select id="spec" class="input" style="background:#f8f9fb;"></select>
           </div>
           <div>
-            <label class="text-xs" style="color:#8896a9;">Quantity</label>
+            <label class="text-xs" style="color:#8896a9;">Quantity <span style="color:red; font-size:15px;">*</span></label>
             <input type="number" id="qty" class="input">
           </div>
           <div>
-            <label class="text-xs" style="color:#8896a9;">Issuer</label>
+            <label class="text-xs" style="color:#8896a9;">Email</label>
             <input type="text" id="issuer" class="input">
           </div>
           <div class="md:col-span-2">
@@ -1716,9 +1716,12 @@
             <span class="flex items-center justify-center gap-2"><i data-lucide="rotate-ccw"
                 class="w-4 h-4"></i>Clear</span>
           </button>
-          <button onclick="saveData()" id="saveBtn" class="flex-1 py-2 rounded font-semibold text-sm transition"
+          <button onclick="saveData()" id="saveBtn"
+            class="flex-1 py-2 rounded font-semibold text-sm transition relative overflow-hidden"
             style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">
-            Save Transaction
+            <span id="saveBtnLabel">Confirm</span>
+            <div id="saveBtnProgress"
+              style="position:absolute;bottom:0;left:0;height:3px;width:0%;background:#0f1b2d;transition:width 0.3s ease;"></div>
           </button>
         </div>
       </div>
@@ -3282,8 +3285,7 @@
           }, null);
         }
 
-        // ================= SAVE REQUISITION =================
-        function saveData() {
+      function saveData() {
           const data = {
             empId: document.getElementById('empId').value.trim(),
             empName: document.getElementById('empName').value.trim(),
@@ -3883,37 +3885,60 @@
         }
 
         // --- Save Requisition ---
-        function saveData() {
-          var data = {
-            empId: document.getElementById('empId').value.trim(),
-            empName: document.getElementById('empName').value.trim(),
-            itemCode: document.getElementById('itemCode').value.trim(),
-            itemName: document.getElementById('itemName').value.trim(),
-            spec: document.getElementById('spec').value,
-            qty: document.getElementById('qty').value.trim(),
-            issuer: document.getElementById('issuer').value.trim(),
-            remark: document.getElementById('remark').value.trim()
-          };
-          if (!data.empId || !data.itemCode || !data.qty) {
-            showModal({ title: "ข้อมูลไม่ครบ", text: "กรุณากรอก Employee ID, Item Code และ Quantity", type: "error" });
-            return;
+          function saveData() {
+            var data = {
+              empId: document.getElementById('empId').value.trim(),
+              empName: document.getElementById('empName').value.trim(),
+              itemCode: document.getElementById('itemCode').value.trim(),
+              itemName: document.getElementById('itemName').value.trim(),
+              spec: document.getElementById('spec').value,
+              qty: document.getElementById('qty').value.trim(),
+              issuer: document.getElementById('issuer').value.trim(),
+              remark: document.getElementById('remark').value.trim()
+            };
+            if (!data.empId || !data.itemCode || !data.qty) {
+              showModal({ title: "ข้อมูลไม่ครบ", text: "กรุณากรอก Employee ID, Item Code และ Quantity", type: "error" });
+              return;
+            }
+            var now = new Date();
+            data.date = now.toLocaleDateString("th-TH");
+            data.time = now.toLocaleTimeString("th-TH");
+            data.status = "รออนุมัติ";
+
+            var btn = document.getElementById("saveBtn");
+            var label = document.getElementById("saveBtnLabel");
+            var progress = document.getElementById("saveBtnProgress");
+
+            btn.disabled = true;
+            label.innerText = "Saving...";
+            progress.style.width = "0%";
+
+            var pct = 0;
+            var progressTimer = setInterval(function () {
+              pct += (100 - pct) * 0.1;
+              progress.style.width = Math.min(pct, 92) + "%";
+            }, 150);
+
+            gasCall("saveStock", { data: data }, function () {
+              clearInterval(progressTimer);
+              progress.style.width = "100%";
+              setTimeout(function () {
+                progress.style.width = "0%";
+                label.innerText = "Save Transaction";
+                btn.disabled = false;
+              }, 300);
+
+              lastSavedData = data;
+              showSuccessModal();
+              clearForm();
+            }, function (err) {
+              clearInterval(progressTimer);
+              progress.style.width = "0%";
+              label.innerText = "Save Transaction";
+              btn.disabled = false;
+              showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
+            });
           }
-          var now = new Date();
-          data.date = now.toLocaleDateString("th-TH");
-          data.time = now.toLocaleTimeString("th-TH");
-          data.status = "รออนุมัติ";
-          var btn = document.getElementById("saveBtn");
-          btn.innerText = "Saving..."; btn.disabled = true;
-          gasCall("saveStock", { data: data }, function () {
-            lastSavedData = data;
-            showSuccessModal();
-            clearForm();
-            btn.innerText = "Save Transaction"; btn.disabled = false;
-          }, function (err) {
-            showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
-            btn.innerText = "Save Transaction"; btn.disabled = false;
-          });
-        }
 
         // ================= HISTORY =================
 
