@@ -3183,6 +3183,7 @@
                 "prapatsorn.n@minebea.co.th",
                 "naruemon.s@minebea.co.th",
                 "wasana.ku@minebea.co.th",
+                "pmnbwa@minebea.co.th",
               ];
               const allowed = APPROVE_WHITELIST.map(e => e.toLowerCase().trim());
               if (allowed.includes(savedEmail.toLowerCase().trim())) {
@@ -3271,7 +3272,7 @@
             // ✅ ลิสต์คนที่เห็นการ์ด Spare Part Input (แยกต่างหาก)
           const INPUT_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
           ];
           const inputAllowed = INPUT_WHITELIST.map(e => e.toLowerCase().trim());
           if (inputAllowed.includes(email.toLowerCase().trim())) {
@@ -3281,7 +3282,7 @@
           // ✅ ลิสต์คนที่เห็นการ์ด Stock Report (แยกต่างหาก)
           const REPORT_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
           ];
           const reportAllowed = REPORT_WHITELIST.map(e => e.toLowerCase().trim());
           if (reportAllowed.includes(email.toLowerCase().trim())) {
@@ -3291,7 +3292,7 @@
           // ✅ ปุ่มที่เห็นเฉพาะคนใน whitelist
           const TOOLBAR_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
           ];
           if (TOOLBAR_WHITELIST.map(e => e.toLowerCase().trim()).includes(email.toLowerCase().trim())) {
             var sb = document.getElementById("sheetBtn");
