@@ -983,7 +983,7 @@
           </div>
 
           <button id="sheetBtn"
-            onclick="window.open('https://docs.google.com/spreadsheets/d/1wEj34Fkmwxv0EzIznZ7-6QdcI43o-ZrK/edit?gid=626396644#gid=626396644', '_blank')"
+            onclick="window.open('https://docs.google.com/spreadsheets/d/1mmZYrLdst55LmnUHFdEoUcCSQDb9FETNEgP2TwXGJa0/edit?gid=1063639628#gid=1063639628', '_blank')"
             title="เปิด Google Sheet" style="width:42px;height:42px;border-radius:12px;
               border:1px solid rgba(15,157,88,0.4);
               background:rgba(15,157,88,0.08);
@@ -3183,7 +3183,6 @@
                 "prapatsorn.n@minebea.co.th",
                 "naruemon.s@minebea.co.th",
                 "wasana.ku@minebea.co.th",
-                "pmnbwa@minebea.co.th",
               ];
               const allowed = APPROVE_WHITELIST.map(e => e.toLowerCase().trim());
               if (allowed.includes(savedEmail.toLowerCase().trim())) {
@@ -3262,7 +3261,7 @@
 
           const APPROVE_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
           ];
           const allowed = APPROVE_WHITELIST.map(e => e.toLowerCase().trim());
           if (allowed.includes(email.toLowerCase().trim())) {
@@ -3272,7 +3271,7 @@
             // ✅ ลิสต์คนที่เห็นการ์ด Spare Part Input (แยกต่างหาก)
           const INPUT_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
           ];
           const inputAllowed = INPUT_WHITELIST.map(e => e.toLowerCase().trim());
           if (inputAllowed.includes(email.toLowerCase().trim())) {
@@ -3282,7 +3281,7 @@
           // ✅ ลิสต์คนที่เห็นการ์ด Stock Report (แยกต่างหาก)
           const REPORT_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
           ];
           const reportAllowed = REPORT_WHITELIST.map(e => e.toLowerCase().trim());
           if (reportAllowed.includes(email.toLowerCase().trim())) {
@@ -3292,7 +3291,7 @@
           // ✅ ปุ่มที่เห็นเฉพาะคนใน whitelist
           const TOOLBAR_WHITELIST = [
             "pmnstore48@gmail.com", "jattaphol.c@minebea.co.th", "prapatsorn.n@minebea.co.th",
-            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th", "pmnbwa@minebea.co.th",
+            "naruemon.s@minebea.co.th", "wasana.ku@minebea.co.th",
           ];
           if (TOOLBAR_WHITELIST.map(e => e.toLowerCase().trim()).includes(email.toLowerCase().trim())) {
             var sb = document.getElementById("sheetBtn");
@@ -3799,7 +3798,7 @@
         }
 
         // ===== CONFIG =====
-        var GAS_URL = "https://script.google.com/a/macros/minebea.co.th/s/AKfycbxbEynD733T97MDOQr3wdXieh4ruJsSWVimzzp94VX-ysZUpTux5tsA89O8LcKUWgGz/exec";
+        var GAS_URL = "https://script.google.com/macros/s/AKfycby_Oqobv961sBxbBIPQce4UYqyog2nkPe3gGpa_FpqUvNWkiXwgFtBa9oxr7LHbz03c/exec";
 
         // ===== FETCH WRAPPER =====
         function gasCall(action, params, onSuccess, onFail) {
