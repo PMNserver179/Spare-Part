@@ -978,9 +978,21 @@
                 <span onclick="document.getElementById('lsPanel').classList.remove('open')"
                   style="cursor:pointer;font-size:18px;color:#aaa;">&times;</span>
               </div>
-              <div id="lsItems"></div>
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                  <thead>
+                    <tr style="border-bottom:2px solid #dc3545;">
+                      <th style="text-align:left;padding:8px 12px;font-size:11px;color:#8896a9;font-weight:600;">CODE</th>
+                      <th style="text-align:left;padding:8px 12px;font-size:11px;color:#8896a9;font-weight:600;">NAME</th>
+                      <th style="text-align:left;padding:8px 12px;font-size:11px;color:#8896a9;font-weight:600;">SPEC</th>
+                      <th style="text-align:left;padding:8px 12px;font-size:11px;color:#8896a9;font-weight:600;">BALANCE</th>
+                      <th style="text-align:left;padding:8px 12px;font-size:11px;color:#8896a9;font-weight:600;">MIN</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lsItems"></tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
           <button id="sheetBtn"
             onclick="window.open('https://docs.google.com/spreadsheets/d/1mmZYrLdst55LmnUHFdEoUcCSQDb9FETNEgP2TwXGJa0/edit?gid=1063639628#gid=1063639628', '_blank')"
