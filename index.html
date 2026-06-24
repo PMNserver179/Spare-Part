@@ -841,11 +841,6 @@
       padding: 8px 12px;
     }
 
-    #lsItems {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 8px;
-    }
   </style>
 </head>
 
@@ -4465,19 +4460,13 @@
             title.textContent = "Stock ต่ำกว่า Minimum " + count + " รายการ";
 
             items.innerHTML = res.items.map(function (item) {
-              return `
-        <div class="ls-item">
-          <div style="font-size:11px;color:#aaa;">${item.itemCode}</div>
-          <div style="font-size:13px;font-weight:500;margin:2px 0;">${item.itemName}</div>
-          <div style="font-size:11px;color:#8896a9;margin-bottom:4px;">${item.itemSpec}</div>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <span style="font-size:11px;background:#fcebeb;color:#a32d2d;
-              padding:2px 8px;border-radius:4px;font-weight:700;">
-              Balance: ${item.balance}
-            </span>
-            <span style="font-size:11px;color:#aaa;">Min: ${item.min}</span>
-          </div>
-        </div>`;
+              return '<tr style="border-top:1px solid #eef0f3;">'
+                + '<td style="padding:8px 12px;color:#4a5568;">' + item.itemCode + '</td>'
+                + '<td style="padding:8px 12px;color:#1a2332;font-weight:500;">' + item.itemName + '</td>'
+                + '<td style="padding:8px 12px;color:#8896a9;">' + (item.itemSpec || '-') + '</td>'
+                + '<td style="padding:8px 12px;"><span style="color:#dc3545;font-weight:700;">' + item.balance + '</span></td>'
+                + '<td style="padding:8px 12px;color:#8896a9;">' + item.min + '</td>'
+                + '</tr>';
             }).join("");
 
             sendLowStockNotification(count, res.items);
