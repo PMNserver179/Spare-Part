@@ -1278,13 +1278,15 @@
               Clear
             </span>
           </button>
-          <button onclick="saveInput()" id="saveInputBtn" class="flex-1 py-2 rounded font-semibold text-sm transition"
+          <button onclick="saveInput()" id="saveInputBtn" class="flex-1 py-2 rounded font-semibold text-sm transition relative overflow-hidden"
             style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#0f1b2d;">
-            <span class="flex items-center justify-center gap-2">
+            <span class="flex items-center justify-center gap-2" id="saveInputBtnLabel">
               <i data-lucide="package-plus" class="w-4 h-4"></i>
               บันทึกรับเข้า
             </span>
-          </button>
+            <div id="saveInputBtnProgress"
+              style="position:absolute;bottom:0;left:0;height:3px;width:0%;background:#0f1b2d;transition:width 0.3s ease;"></div>
+        </button>
         </div>
         <!-- ต่อจาก div ปุ่ม mt-5 flex gap-3 ของ Input Page -->
         <div class="mt-3">
@@ -3868,9 +3870,31 @@
             showModal({ title: "ข้อมูลไม่ครบ", text: "กรุณากรอก Item Code และ Quantity", type: "error" });
             return;
           }
+        
           var btn = document.getElementById("saveInputBtn");
-          btn.innerText = "Saving..."; btn.disabled = true;
+          var label = document.getElementById("saveInputBtnLabel");
+          var progress = document.getElementById("saveInputBtnProgress");
+        
+          btn.disabled = true;
+          label.innerHTML = "Saving...";
+          progress.style.width = "0%";
+        
+          var pct = 0;
+          var progressTimer = setInterval(function () {
+            pct += (100 - pct) * 0.1;
+            progress.style.width = Math.min(pct, 92) + "%";
+          }, 150);
+        
           gasCall("saveStockIn", { data: data }, function (res) {
+            clearInterval(progressTimer);
+            progress.style.width = "100%";
+            setTimeout(function () {
+              progress.style.width = "0%";
+              label.innerHTML = '<i data-lucide="package-plus" class="w-4 h-4"></i> บันทึกรับเข้า';
+              lucide.createIcons();
+              btn.disabled = false;
+            }, 300);
+        
             var now = new Date();
             todayInputList.unshift(Object.assign({}, data, {
               time: res.time || now.toLocaleTimeString("th-TH"),
@@ -3879,10 +3903,13 @@
             renderInputTable();
             clearInputForm();
             showModal({ title: "บันทึกสำเร็จ", text: "รับ " + data.itemName + " เข้าคลัง " + data.qty + " รายการแล้ว", type: "success", autoClose: 1800 });
-            btn.innerText = "บันทึกรับเข้า"; btn.disabled = false;
           }, function (err) {
+            clearInterval(progressTimer);
+            progress.style.width = "0%";
+            label.innerHTML = '<i data-lucide="package-plus" class="w-4 h-4"></i> บันทึกรับเข้า';
+            lucide.createIcons();
+            btn.disabled = false;
             showModal({ title: "เกิดข้อผิดพลาด", text: err.message, type: "error" });
-            btn.innerText = "บันทึกรับเข้า"; btn.disabled = false;
           });
         }
 
